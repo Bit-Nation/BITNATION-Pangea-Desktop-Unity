@@ -9,7 +9,7 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{B0019FF8-0885-C375-0AC0-45396FB94765}</ProjectGuid>
+    <ProjectGuid>{57A307DF-08C8-716B-003D-8C59330F8B83}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>Assembly-CSharp</AssemblyName>
@@ -53,8 +53,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\loader.cs" />
      <Compile Include="Assets\Main_script.cs" />
-     <Compile Include="Assets\MainScript.cs" />
+     <Compile Include="Assets\Resources\Scripts\JSON.cs" />
+     <Compile Include="Assets\Resources\Scripts\SimpleJSONBinary.cs" />
+     <Compile Include="Assets\Resources\Scripts\SimpleJSONUnity.cs" />
      <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF-Surface-Mobile.shader" />
      <None Include="Assets\TextMesh Pro\Resources\LineBreaking Leading Characters.txt" />
      <None Include="Assets\TextMesh Pro\Resources\Shaders\TMPro_Properties.cginc" />
@@ -73,19 +76,19 @@
      <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_Sprite.shader" />
      <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF-Surface.shader" />
  <Reference Include="Unity.TextMeshPro.Editor">
- <HintPath>C:/Users/bpsou/Desktop/PANGEA/DESKTOP/Bitnation Desktop/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
+ <HintPath>C:/Users/bpsou/Desktop/PANGEA/DESKTOP/BITNATION-Pangea-Desktop-Unity/APP/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
  </Reference>
  <Reference Include="Unity.PackageManagerUI.Editor">
- <HintPath>C:/Users/bpsou/Desktop/PANGEA/DESKTOP/Bitnation Desktop/Library/ScriptAssemblies/Unity.PackageManagerUI.Editor.dll</HintPath>
+ <HintPath>C:/Users/bpsou/Desktop/PANGEA/DESKTOP/BITNATION-Pangea-Desktop-Unity/APP/Library/ScriptAssemblies/Unity.PackageManagerUI.Editor.dll</HintPath>
  </Reference>
  <Reference Include="Unity.CollabProxy.Editor">
- <HintPath>C:/Users/bpsou/Desktop/PANGEA/DESKTOP/Bitnation Desktop/Library/ScriptAssemblies/Unity.CollabProxy.Editor.dll</HintPath>
+ <HintPath>C:/Users/bpsou/Desktop/PANGEA/DESKTOP/BITNATION-Pangea-Desktop-Unity/APP/Library/ScriptAssemblies/Unity.CollabProxy.Editor.dll</HintPath>
  </Reference>
  <Reference Include="Unity.TextMeshPro">
- <HintPath>C:/Users/bpsou/Desktop/PANGEA/DESKTOP/Bitnation Desktop/Library/ScriptAssemblies/Unity.TextMeshPro.dll</HintPath>
+ <HintPath>C:/Users/bpsou/Desktop/PANGEA/DESKTOP/BITNATION-Pangea-Desktop-Unity/APP/Library/ScriptAssemblies/Unity.TextMeshPro.dll</HintPath>
  </Reference>
  <Reference Include="Unity.Analytics.DataPrivacy">
- <HintPath>C:/Users/bpsou/Desktop/PANGEA/DESKTOP/Bitnation Desktop/Library/ScriptAssemblies/Unity.Analytics.DataPrivacy.dll</HintPath>
+ <HintPath>C:/Users/bpsou/Desktop/PANGEA/DESKTOP/BITNATION-Pangea-Desktop-Unity/APP/Library/ScriptAssemblies/Unity.Analytics.DataPrivacy.dll</HintPath>
  </Reference>
  <Reference Include="UnityEngine.AIModule">
  <HintPath>C:/Program Files/Unity/Editor/Data/Managed/UnityEngine/UnityEngine.AIModule.dll</HintPath>
@@ -289,19 +292,19 @@
  <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/UnitySpatialTracking/RuntimeEditor/UnityEngine.SpatialTracking.dll</HintPath>
  </Reference>
  <Reference Include="LocalDB">
- <HintPath>C:/Users/bpsou/Desktop/PANGEA/DESKTOP/Bitnation Desktop/Assets/Plugins/LocalDB.dll</HintPath>
+ <HintPath>C:/Users/bpsou/Desktop/PANGEA/DESKTOP/BITNATION-Pangea-Desktop-Unity/APP/Assets/Plugins/LocalDB.dll</HintPath>
  </Reference>
  <Reference Include="Mono.Data.Sqlite">
- <HintPath>C:/Users/bpsou/Desktop/PANGEA/DESKTOP/Bitnation Desktop/Assets/Plugins/Mono.Data.Sqlite.dll</HintPath>
+ <HintPath>C:/Users/bpsou/Desktop/PANGEA/DESKTOP/BITNATION-Pangea-Desktop-Unity/APP/Assets/Plugins/Mono.Data.Sqlite.dll</HintPath>
  </Reference>
  <Reference Include="Unity.Analytics.Editor">
- <HintPath>C:/Users/bpsou/Desktop/PANGEA/DESKTOP/Bitnation Desktop/Library/PackageCache/com.unity.analytics@3.2.2/Unity.Analytics.Editor.dll</HintPath>
+ <HintPath>C:/Users/bpsou/Desktop/PANGEA/DESKTOP/BITNATION-Pangea-Desktop-Unity/APP/Library/PackageCache/com.unity.analytics@3.2.2/Unity.Analytics.Editor.dll</HintPath>
  </Reference>
  <Reference Include="Unity.Analytics.StandardEvents">
- <HintPath>C:/Users/bpsou/Desktop/PANGEA/DESKTOP/Bitnation Desktop/Library/PackageCache/com.unity.analytics@3.2.2/Unity.Analytics.StandardEvents.dll</HintPath>
+ <HintPath>C:/Users/bpsou/Desktop/PANGEA/DESKTOP/BITNATION-Pangea-Desktop-Unity/APP/Library/PackageCache/com.unity.analytics@3.2.2/Unity.Analytics.StandardEvents.dll</HintPath>
  </Reference>
  <Reference Include="Unity.Analytics.Tracker">
- <HintPath>C:/Users/bpsou/Desktop/PANGEA/DESKTOP/Bitnation Desktop/Library/PackageCache/com.unity.analytics@3.2.2/Unity.Analytics.Tracker.dll</HintPath>
+ <HintPath>C:/Users/bpsou/Desktop/PANGEA/DESKTOP/BITNATION-Pangea-Desktop-Unity/APP/Library/PackageCache/com.unity.analytics@3.2.2/Unity.Analytics.Tracker.dll</HintPath>
  </Reference>
  <Reference Include="netstandard">
  <HintPath>C:/Program Files/Unity/Editor/Data/NetStandard/ref/2.0.0/netstandard.dll</HintPath>
@@ -651,7 +654,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="Assembly-CSharp-firstpass.csproj">
-      <Project>{C3BFFAEE-807E-76F9-27AB-07BA3E4223E7}</Project>      <Name>Assembly-CSharp-firstpass</Name>    </ProjectReference>
+      <Project>{6355D100-5045-6282-424B-1438860B48BA}</Project>      <Name>Assembly-CSharp-firstpass</Name>    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -9,7 +9,7 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{C3BFFAEE-807E-76F9-27AB-07BA3E4223E7}</ProjectGuid>
+    <ProjectGuid>{6355D100-5045-6282-424B-1438860B48BA}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>Assembly-CSharp-firstpass</AssemblyName>
@@ -59,19 +59,19 @@
      <Compile Include="Assets\Plugins\Pixelplacement\iTween\Sample\SampleInfo.cs" />
      <None Include="Assets\Plugins\Pixelplacement\iTween\ReadMe!\ReadMe!.txt" />
  <Reference Include="Unity.TextMeshPro.Editor">
- <HintPath>C:/Users/bpsou/Desktop/PANGEA/DESKTOP/Bitnation Desktop/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
+ <HintPath>C:/Users/bpsou/Desktop/PANGEA/DESKTOP/BITNATION-Pangea-Desktop-Unity/APP/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
  </Reference>
  <Reference Include="Unity.PackageManagerUI.Editor">
- <HintPath>C:/Users/bpsou/Desktop/PANGEA/DESKTOP/Bitnation Desktop/Library/ScriptAssemblies/Unity.PackageManagerUI.Editor.dll</HintPath>
+ <HintPath>C:/Users/bpsou/Desktop/PANGEA/DESKTOP/BITNATION-Pangea-Desktop-Unity/APP/Library/ScriptAssemblies/Unity.PackageManagerUI.Editor.dll</HintPath>
  </Reference>
  <Reference Include="Unity.CollabProxy.Editor">
- <HintPath>C:/Users/bpsou/Desktop/PANGEA/DESKTOP/Bitnation Desktop/Library/ScriptAssemblies/Unity.CollabProxy.Editor.dll</HintPath>
+ <HintPath>C:/Users/bpsou/Desktop/PANGEA/DESKTOP/BITNATION-Pangea-Desktop-Unity/APP/Library/ScriptAssemblies/Unity.CollabProxy.Editor.dll</HintPath>
  </Reference>
  <Reference Include="Unity.TextMeshPro">
- <HintPath>C:/Users/bpsou/Desktop/PANGEA/DESKTOP/Bitnation Desktop/Library/ScriptAssemblies/Unity.TextMeshPro.dll</HintPath>
+ <HintPath>C:/Users/bpsou/Desktop/PANGEA/DESKTOP/BITNATION-Pangea-Desktop-Unity/APP/Library/ScriptAssemblies/Unity.TextMeshPro.dll</HintPath>
  </Reference>
  <Reference Include="Unity.Analytics.DataPrivacy">
- <HintPath>C:/Users/bpsou/Desktop/PANGEA/DESKTOP/Bitnation Desktop/Library/ScriptAssemblies/Unity.Analytics.DataPrivacy.dll</HintPath>
+ <HintPath>C:/Users/bpsou/Desktop/PANGEA/DESKTOP/BITNATION-Pangea-Desktop-Unity/APP/Library/ScriptAssemblies/Unity.Analytics.DataPrivacy.dll</HintPath>
  </Reference>
  <Reference Include="UnityEngine.AIModule">
  <HintPath>C:/Program Files/Unity/Editor/Data/Managed/UnityEngine/UnityEngine.AIModule.dll</HintPath>
@@ -275,19 +275,19 @@
  <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/UnitySpatialTracking/RuntimeEditor/UnityEngine.SpatialTracking.dll</HintPath>
  </Reference>
  <Reference Include="LocalDB">
- <HintPath>C:/Users/bpsou/Desktop/PANGEA/DESKTOP/Bitnation Desktop/Assets/Plugins/LocalDB.dll</HintPath>
+ <HintPath>C:/Users/bpsou/Desktop/PANGEA/DESKTOP/BITNATION-Pangea-Desktop-Unity/APP/Assets/Plugins/LocalDB.dll</HintPath>
  </Reference>
  <Reference Include="Mono.Data.Sqlite">
- <HintPath>C:/Users/bpsou/Desktop/PANGEA/DESKTOP/Bitnation Desktop/Assets/Plugins/Mono.Data.Sqlite.dll</HintPath>
+ <HintPath>C:/Users/bpsou/Desktop/PANGEA/DESKTOP/BITNATION-Pangea-Desktop-Unity/APP/Assets/Plugins/Mono.Data.Sqlite.dll</HintPath>
  </Reference>
  <Reference Include="Unity.Analytics.Editor">
- <HintPath>C:/Users/bpsou/Desktop/PANGEA/DESKTOP/Bitnation Desktop/Library/PackageCache/com.unity.analytics@3.2.2/Unity.Analytics.Editor.dll</HintPath>
+ <HintPath>C:/Users/bpsou/Desktop/PANGEA/DESKTOP/BITNATION-Pangea-Desktop-Unity/APP/Library/PackageCache/com.unity.analytics@3.2.2/Unity.Analytics.Editor.dll</HintPath>
  </Reference>
  <Reference Include="Unity.Analytics.StandardEvents">
- <HintPath>C:/Users/bpsou/Desktop/PANGEA/DESKTOP/Bitnation Desktop/Library/PackageCache/com.unity.analytics@3.2.2/Unity.Analytics.StandardEvents.dll</HintPath>
+ <HintPath>C:/Users/bpsou/Desktop/PANGEA/DESKTOP/BITNATION-Pangea-Desktop-Unity/APP/Library/PackageCache/com.unity.analytics@3.2.2/Unity.Analytics.StandardEvents.dll</HintPath>
  </Reference>
  <Reference Include="Unity.Analytics.Tracker">
- <HintPath>C:/Users/bpsou/Desktop/PANGEA/DESKTOP/Bitnation Desktop/Library/PackageCache/com.unity.analytics@3.2.2/Unity.Analytics.Tracker.dll</HintPath>
+ <HintPath>C:/Users/bpsou/Desktop/PANGEA/DESKTOP/BITNATION-Pangea-Desktop-Unity/APP/Library/PackageCache/com.unity.analytics@3.2.2/Unity.Analytics.Tracker.dll</HintPath>
  </Reference>
  <Reference Include="netstandard">
  <HintPath>C:/Program Files/Unity/Editor/Data/NetStandard/ref/2.0.0/netstandard.dll</HintPath>
