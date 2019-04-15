@@ -479,9 +479,11 @@ public class Main_script : MonoBehaviour
 						else
 						{
 							
-							log("    > ERROR [#apicom003] : Unknown response error.");
+							log("    > ERROR 1 [#apicom003] : Unknown response error.");
 							
 							//// SHOW ERROR MESSAGE SCREEN HERE!
+							
+							// test change
                 									
 						}
 						
