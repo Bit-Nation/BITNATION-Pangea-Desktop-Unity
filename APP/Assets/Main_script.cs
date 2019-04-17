@@ -84,9 +84,10 @@ public class Main_script : MonoBehaviour
 		log(" ");
 
 			// Initiate the app showing the lobby
-			lobby("Show");
+			lobby("Login");
 			
-			
+			// hides the message screen
+			message("hide", "");
 
 		
     }
@@ -98,39 +99,7 @@ public class Main_script : MonoBehaviour
 
 		log("== INIT Lobby ==");
 		log(" ");
-		
-			if(screen == "Show")
-			{
-				
-				GameObject.Find("Screens").transform.Find("Login").gameObject.SetActive(true);
-				log("    > Login set to active");
-				
-				GameObject.Find("Screens").transform.Find("Create_account").gameObject.SetActive(true);
-				log("    > Create_account set to active");
-
-				GameObject.Find("Screens").transform.Find("Restore_account").gameObject.SetActive(true);
-				log("    > Restore_account set to active");
-				
-				// position screens of the Lobby
-				
-				GameObject.Find("Screens/Login").GetComponent<RectTransform>().anchoredPosition = new Vector2( 0, 0 );
-				log("    > Login position to ("+( Screen.width * -1 )+",0)");
-				
-				GameObject.Find("Screens/Create_account").GetComponent<RectTransform>().anchoredPosition = new Vector2( Screen.width, 0 );
-				log("    > Create_account position to ("+Screen.width+",0)");
-				
-				GameObject.Find("Screens/Restore_account").GetComponent<RectTransform>().anchoredPosition = new Vector2( Screen.width, 0);
-				log("    > Restore_account position to ("+Screen.width+",0)");
-							
-				lobby_screen = "Login";
-				log("    > lobby screen set to 'Login'");
-				
-				focus("Input_login");
-								
-			}
-			else if(screen == "Hide")
-			{
-				
+									
 				GameObject.Find("Screens").transform.Find("Login").gameObject.SetActive(false);
 				log("    > Login set to inactive");
 				
@@ -140,109 +109,94 @@ public class Main_script : MonoBehaviour
 				GameObject.Find("Screens").transform.Find("Restore_account").gameObject.SetActive(false);
 				log("    > Restore_account set to inactive");
 				
-				lobby_screen = "";
-				log("    > lobby screen set to ''");
-				
-			}
-			else
-			{
-													
-				// ht stores parameters for the tween animation
-				Hashtable ht;
-			
-				if(lobby_screen != "" && lobby_screen != screen)
+				// This shows the proper screen and sets focus to the proper input field
+				// If you pass Hide or any other parameter then it will not show any screen from the lobby
+						
+				if(screen == "Login")
 				{
 					
-					ht = new Hashtable();
+					GameObject.Find("Screens").transform.Find("Login").gameObject.SetActive(true);
+					log("    > Login set to active");
 					
-					ht.Add("time", 0.3);
-					ht.Add("easetype", "easeOutCirc");
+					focus("Input_login");
+					log("    > Focus set to Input_login");
 					
-					if(lobby_screen == "Login")
-					{
-						
-						ht.Add("x", ( Screen.width *  -1 ) ); // left of the screen
-						
-													
-					}
-					else if(lobby_screen == "Create_account")
-					{
-						
-						ht.Add("x", ( Screen.width * 1 ) ); // right of the screen
-																
-					}
-					else if(lobby_screen == "Restore_account")
-					{
-						
-						ht.Add("x", ( Screen.width * 1 ) ); // right of the screen
-											
-					}
-					else
-					{
-						
-						log("    > ERROR [#lobby001] : Current lobby Unknown: " + lobby_screen);
-						
-					}
-														
-					iTween.MoveTo(GameObject.Find(lobby_screen), ht);
-					log("    > Lobby Screen Tween : "+lobby_screen);
-															
+				}
+				else if(screen == "Create")
+				{
+					
+					GameObject.Find("Screens").transform.Find("Create_account").gameObject.SetActive(true);
+					log("    > Create_account set to active");
+					
+					focus("Input_name");
+					log("    > Focus set to Input_name");
+										
+				}
+				else if(screen == "Restore")
+				{
+					
+					GameObject.Find("Screens").transform.Find("Restore_account").gameObject.SetActive(true);
+					log("    > Restore_account set to active");
+					
+					focus("Input_email");
+					log("    > Focus set to Input_email");
+					
+					
 				}
 				
-				if(lobby_screen != screen){
-					
-					ht = new Hashtable();
-					
-					ht.Add("time", 0.3);
-					ht.Add("easetype", "easeOutCirc");
-					ht.Add("x", 0 );
-					
-					if(screen == "Login" || screen == "Create_account" || screen == "Restore_account" )
-					{
-					
-						iTween.MoveTo(GameObject.Find(screen), ht);
-						
-						lobby_screen = screen;
-					
-						log("    > Screen Tween : "+lobby_screen);
-						
-						if(lobby_screen == "Login")
-						{
-							
-							focus("Input_login");
-							
-						}
-						else if(lobby_screen == "Create_account")
-						{
-							
-							focus("Input_new_login");
-							
-						}						
-						else if(lobby_screen == "Restore_account")
-						{
-							
-							focus("Input_email");
-							
-						}
-										
-					}
-					else
-					{
-						
-						log("    > ERROR [#lobby002] : Unknown screen: "+screen);
-						
-					}
-										
-				}
-								
-			}
-		
+			
 		log(" ");
 		log("== END Lobby ==");
 		log(" ");
 	
 	}
 	
+	
+	// Shows messages on top of all other screens
+	public void message(string screen, string message)
+	{
+		
+		log("== INIT message ==");
+		log(" ");
+		
+			if(screen == "hide")
+			{
+				
+				GameObject.Find("Screens").transform.Find("Message").gameObject.SetActive(false);
+				log("    > Message set to inactive");
+								
+			}
+			else
+			{
+				
+				// Activate the main message screen with black background
+				
+				GameObject.Find("Screens").transform.Find("Message").gameObject.SetActive(true);
+				log("    > Message set to active");
+									
+				// Sets all sub screen to inactive
+				
+				GameObject.Find("Screens/Message").transform.Find("Loading").gameObject.SetActive(false);
+				log("    > Message/Loading set to inactive");				
+				
+				if(screen == "loading")
+				{
+					
+					GameObject.Find("Screens/Message").transform.Find("Loading").gameObject.SetActive(true);
+					log("    > Message/Loading set to active");		
+					
+					GameObject.Find("Screens/Message/Loading/Message").GetComponent<TextMeshProUGUI>().text = message;
+										
+				}
+								
+			}
+					
+		log(" ");
+		log("== END message ==");
+		log(" ");
+		
+	}
+		
 	// Function invoked at the start of every frame
 	void Update()
     {
@@ -355,43 +309,122 @@ public class Main_script : MonoBehaviour
 		
     }
 	
-	// API communication protocol
-	
-	/*
-	
-	StartCoroutine(comunica2(node, "sys_c:remove_id|profile:" + reader.GetStringValue(node) + "|hash:" + reader.GetStringValue(node + "_hash"))); //   comunica2(node, "profile:"+profile+"|password:"+password+""); // nodeid, vars
-	
-	var resp = JSON.Parse(v);
-
-	int result = db.Update("UPDATE profiles SET  " + resp["node"] + "='', " + resp["node"] + "_hash=''  WHERE id = '" + profile_atual + "'");
-
-	
-	*/
 	
 	// Click Functions
 	
 	public void login()
 	{
-				
+		
+		message("loading", "Connecting to server ...");
+		
 		string json = "{\"function\":\"login\"}";		
 				
 		StartCoroutine(apicom(json));
 			
 	}
 	
+	public void tab(string tab_id)
+	{
+		
+		// clears everything
+
+		log("== INIT Tab ==");
+		log(" ");
+
+			GameObject.Find("Screens/Main/Sidebar").transform.Find("Sidebar_contacts").gameObject.SetActive(false);
+			log("    > Sidebar_contacts set to inactive");
+			
+			GameObject.Find("Screens/Main/Sidebar").transform.Find("Sidebar_nations").gameObject.SetActive(false);
+			log("    > Sidebar_nations set to inactive");
+			
+			GameObject.Find("Screens/Main/Sidebar").transform.Find("Sidebar_settings").gameObject.SetActive(false);
+			log("    > Sidebar_settings set to inactive");
+			
+			GameObject.Find("Screens/Main/Sidebar").transform.Find("Sidebar_menu").gameObject.SetActive(false);
+			log("    > Sidebar_menu set to inactive");
+				
+			GameObject.Find("Screens/Main/Sidebar/Tab_bar/Tab1").GetComponent<Image>().color = new Color(0.9137256f, 0.9137256f, 0.9137256f, 1f);
+			log("    > Tab1 color set to : "+GameObject.Find("Screens/Main/Sidebar/Tab_bar/Tab1").GetComponent<Image>().color);
+			
+			GameObject.Find("Screens/Main/Sidebar/Tab_bar/Tab2").GetComponent<Image>().color = new Color(0.9137256f, 0.9137256f, 0.9137256f, 1f);
+			log("    > Tab2 color set to : "+GameObject.Find("Screens/Main/Sidebar/Tab_bar/Tab2").GetComponent<Image>().color);
+			
+			GameObject.Find("Screens/Main/Sidebar/Tab_bar/Tab3").GetComponent<Image>().color = new Color(0.9137256f, 0.9137256f, 0.9137256f, 1f);
+			log("    > Tab2 color set to : "+GameObject.Find("Screens/Main/Sidebar/Tab_bar/Tab3").GetComponent<Image>().color);
+			
+			GameObject.Find("Screens/Main/Sidebar/Tab_bar/Tab4").GetComponent<Image>().color = new Color(0.9137256f, 0.9137256f, 0.9137256f, 1f);
+			log("    > Tab2 color set to : "+GameObject.Find("Screens/Main/Sidebar/Tab_bar/Tab4").GetComponent<Image>().color);
+			
+				
+		
+		if(tab_id == "Tab1")
+		{
+			
+			GameObject.Find("Screens/Main/Sidebar").transform.Find("Sidebar_menu").gameObject.SetActive(true);
+			log("    > Sidebar_menu set to active");
+			
+			GameObject.Find("Screens/Main/Sidebar/Tab_bar/Tab1").GetComponent<Image>().color = new Color(0.8f, 0.8f, 0.8f, 1f);
+			log("    > Tab1 color set to : "+GameObject.Find("Screens/Main/Sidebar/Tab_bar/Tab1").GetComponent<Image>().color);
+			
+			
+			
+		}
+		else if(tab_id == "Tab2")
+		{
+			
+			GameObject.Find("Screens/Main/Sidebar").transform.Find("Sidebar_contacts").gameObject.SetActive(true);
+			log("    > Sidebar_contacts set to active");
+			
+			GameObject.Find("Screens/Main/Sidebar/Tab_bar/Tab2").GetComponent<Image>().color = new Color(0.8f, 0.8f, 0.8f, 1f);
+			log("    > Tab1 color set to : "+GameObject.Find("Screens/Main/Sidebar/Tab_bar/Tab2").GetComponent<Image>().color);
+			
+			
+		}
+		else if(tab_id == "Tab3")
+		{
+			
+			GameObject.Find("Screens/Main/Sidebar").transform.Find("Sidebar_nations").gameObject.SetActive(true);
+			log("    > Sidebar_nations set to active");
+			
+			GameObject.Find("Screens/Main/Sidebar/Tab_bar/Tab3").GetComponent<Image>().color = new Color(0.8f, 0.8f, 0.8f, 1f);
+			log("    > Tab1 color set to : "+GameObject.Find("Screens/Main/Sidebar/Tab_bar/Tab3").GetComponent<Image>().color);
+			
+		}
+		else if(tab_id == "Tab4")
+		{
+			
+			GameObject.Find("Screens/Main/Sidebar").transform.Find("Sidebar_settings").gameObject.SetActive(true);
+			log("    > Sidebar_settings set to active");
+			
+			GameObject.Find("Screens/Main/Sidebar/Tab_bar/Tab4").GetComponent<Image>().color = new Color(0.8f, 0.8f, 0.8f, 1f);
+			log("    > Tab1 color set to : "+GameObject.Find("Screens/Main/Sidebar/Tab_bar/Tab4").GetComponent<Image>().color);
+			
+		}
+		
+		
+	}
+		
 	
-	// Return functions
+	// Api Response functions
 	
 	private void login_response(SimpleJSON.JSONNode r)
 	{
 		
-		log(" ***************** CHEGOU NO LOGIN RESPONSE : "+r["error_message"]);
+		// message("loading", "Updating information...");
 		
+		lobby("Hide");
+		
+		message("hide", "");
+				
+		GameObject.Find("Screens").transform.Find("Main").gameObject.SetActive(true);
+		log("    > Main set to active");
+			
+		tab("Tab1");
 		
 	}
 	
 	
-	// COM functions
+	// Communication functions
 	
 	// Api com function
 	IEnumerator apicom(string json)
@@ -479,7 +512,7 @@ public class Main_script : MonoBehaviour
 						else
 						{
 							
-							log("    > ERROR 1 [#apicom003] : Unknown response error.");
+							log("    > ERROR [#apicom003] : Unknown response error.");
 							
 							//// SHOW ERROR MESSAGE SCREEN HERE!
 							
@@ -501,230 +534,7 @@ public class Main_script : MonoBehaviour
 		log(" ");
 		log("== END apicom ==");
 		log(" ");
-		
-		/*
-		
-			****** TRASH STUFF (here to remember if necessary later)
 			
-			string api_url = "";
-
-			WWWForm form = new WWWForm();
-			form.AddField("json", vars);
-			WebRequest.Put(string url, string data);
-			
-			____________
-			
-			
-
-		   yield return www.Send();
-
-            if (www.isNetworkError || www.isHttpError)
-            {
-                Debug.Log(www.error);
-            }
-            else
-            {
-                // Show results as text
-                Debug.Log("COM RESULT: "+www.downloadHandler.text);
-
-                var resp = JSON.Parse(www.downloadHandler.text);
-
-                // Debug.Log("TYPE: "+resp.GetType());
-
-                if (resp == null)
-                {
-
-                    // Debug.Log("FIM : NULL ");
-
-                    view_message("Message", "", "<b>ERROR:</b>", "Unknown server error.", "", "Ok");
-
-
-                }
-                else {
-
-                    if (resp["error"] != null)
-                    {
-
-                        if (resp["error_message1"] != null && resp["error_message2"] != null)
-                        {
-
-                            view_message("Message", "", "<b>ERROR:</b>", resp["error_message1"], resp["error_message2"], "Ok");
-
-                        }
-                        else
-                        {
-
-                            view_message("Message", "", "<b>ERROR:</b>", "Bad Server answer", "", "Ok");
-
-                        }
-
-                    }
-                    else {
-
-                        if (resp["sys_c"] == null)
-                        {
-
-                            view_message("Message", "", "<b>ERROR:</b>", "Invalid server response.", "", "Ok");
-
-                        }
-                        else
-                        {
-
-                            if (resp["sys_c"] == "identity_added")
-                            {
-
-                                identity_added(www.downloadHandler.text);
-                            }
-                            else if (resp["sys_c"] == "profile_removed")
-                            {
-
-                                delete_id_ok(www.downloadHandler.text);
-                            }
-                            else if (resp["sys_c"] == "profile_updated")
-                            {
-
-                                Debug.Log("Profile Updated");
-
-                            }
-                            else if (resp["sys_c"] == "contact_added")
-                            {
-
-                                contact_added(www.downloadHandler.text);
-
-                            }
-                            else if (resp["sys_c"] == "notifications_back")
-                            {
-
-                                notifications_back(www.downloadHandler.text);
-
-                            }
-                            else if (resp["sys_c"] == "app_response")
-                            {
-
-                                if (resp["back"] == "deploy")
-                                {
-
-                                    new_dapp_received(www.downloadHandler.text);
-                                    dapp_log(www.downloadHandler.text);
-
-                                }
-                                else if (resp["back"] == "action")
-                                {
-
-                                    dapp_log(www.downloadHandler.text);
-
-                                }
-
-
-                            }
-                            else if (resp["sys_c"] == "get_dapp")
-                            {
-
-                                if (resp["response"] == "OK")
-                                {
-
-                                    string flag1 = "0";
-
-                                    DBReader reader = db.Select("Select * from contacts WHERE atlantis_id ='" + resp["id"] + "'");
-
-                                    while (reader != null && reader.Read())
-                                    {
-                                        flag1 = "1";
-                                    };
-
-                                    if (flag1 == "0")
-                                    {
-
-                                        int result2 = db_lastid("contacts");
-
-                                        db.Insert("INSERT INTO contacts VALUES ('" + result2 + "','" + resp["name"] + "','2','" + resp["execnode1"] + "','" + resp["execnode2"] + "','" + resp["execnode3"] + "','" + resp["id"] + "') ");
-
-                                   
-                                    }
-
-                                }
-
-                                if (add_dapp == "0") {
-
-                                    add_dapp = "1";
-
-                                } else if (add_dapp == "1") {
-
-                                    add_dapp = "2";
-
-                                } else if (add_dapp == "2") {
-
-                                    add_dapp = "3";
-
-                                }
-
-                                if (add_dapp == "3") {
-
-                                    string flag1 = "0";
-
-                                    Debug.Log("ID: " + resp["id"] + "");
-
-                                    DBReader reader = db.Select("Select * from contacts WHERE atlantis_id ='" + resp["id"] + "'");
-
-                                    while (reader != null && reader.Read())
-                                    {
-                                        flag1 = "1";
-                                    };
-
-                                    if (flag1 == "0")
-                                    {
-
-                                        view_message("Message", "", "DAPP not found.", "", "", "Ok");
-
-                                    }
-                                    else
-                                    {
-
-                                        view_message("Message", "", "DAPP added to your", "address book.", "", "Ok");
-
-                                    }
-
-                                    atualiza_address();
-                                    novo_contato();
-                                    atualiza_inbox();
-
-
-                                }
-
-                            }
-                            else
-                            {
-
-                                view_message("Message", "", "<b>ERROR:</b>", "Invalid server call.", "[" + resp["sys_c"] + "]", "Ok");
-
-                            }
-
-                            // view_message("Message", "", "<b>Resposta ok!</b>", "", "", "Ok");
-
-                        }
-
-
-                    }
-
-                    
-
-                    // Debug.Log("FIM : " + resp["teste1"]);
-                    
-                }
-
-
-                //// Verificação de erros
-
-
-
-
-                // Or retrieve results as binary data
-                // byte[] results = www.downloadHandler.data;
-            }
-			
-			
-		*/
-	
 	}
 
 	
