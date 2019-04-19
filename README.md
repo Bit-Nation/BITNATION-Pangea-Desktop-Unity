@@ -1,3 +1,5 @@
+![bnlogo](https://user-images.githubusercontent.com/17184469/56422398-7136fb80-62a7-11e9-957c-7d43c2e77e15.png)
+
 # BITNATION-Pangea-Desktop-Unity
 
 * Table of Contents
