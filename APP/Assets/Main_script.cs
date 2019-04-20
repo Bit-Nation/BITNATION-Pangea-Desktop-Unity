@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -6,6 +7,11 @@ using UnityEngine.Networking;
 using TMPro;
 using SQLiteDatabase;
 using SimpleJSON;
+using System.Text;
+using System.IO;  
+using System.Xml; 
+using System.Xml.Serialization; 
+using UnityEngine.SceneManagement;
 
 public class Main_script : MonoBehaviour
 {
@@ -16,13 +22,17 @@ public class Main_script : MonoBehaviour
 		
 	
     // Variable that stores the console messages
-	private string console = "<b>Console:</b>\r\n\r\n";
+	private string console = "Console:\r\n\r\n";
 		
 	// console position control : 0 = outside the screen / 1 = inside the screen
 	private int console_position = 0;
 	
-	// COntrols which screen on the lobby is beeing shown
+	// Controls which screen on the lobby is beeing shown
 	private string lobby_screen = "";
+	
+	// Controls which screen on the main screen is beeing shown
+	private string main_screen = "";
+	
 	
 	// Variables to store Screen Size (used to control the resize of the screen window)
 	private float screen_width;
@@ -38,9 +48,8 @@ public class Main_script : MonoBehaviour
 	void Start()
     {
 		
-		log("== INIT config ==");
-		log(" ");
-
+		log("== INIT config ==\r\n");
+		
 			GameObject.Find("Screens").transform.Find("Console").gameObject.SetActive(true);
 			log("    > Console set to active");
 
@@ -79,17 +88,31 @@ public class Main_script : MonoBehaviour
 			}
 			
 			
-		log(" ");
-		log("== END config ==");
-		log(" ");
-
+		log("\r\n== END config ==\r\n");
+		
 			// Initiate the app showing the lobby
 			lobby("Login");
 			
 			// hides the message screen
 			message("hide", "");
+			
+			// hides the Main Screen
+			GameObject.Find("Screens").transform.Find("Main").gameObject.SetActive(false);
+			log("    > Main set to inactive");
 
-		
+
+			//// TESTS
+			
+			string test = loadfile("mytest2");
+			
+			
+			log("    > Test2: "+test);
+
+			loadpage("mytest2");
+			
+			
+			
+			
     }
 	
 	// Shows one screen from the lobby
@@ -97,8 +120,7 @@ public class Main_script : MonoBehaviour
 	public void lobby(string screen)
 	{
 
-		log("== INIT Lobby ==");
-		log(" ");
+		log("== INIT Lobby ==\r\n");
 									
 				GameObject.Find("Screens").transform.Find("Login").gameObject.SetActive(false);
 				log("    > Login set to inactive");
@@ -145,19 +167,15 @@ public class Main_script : MonoBehaviour
 				}
 				
 			
-		log(" ");
-		log("== END Lobby ==");
-		log(" ");
-	
+		log("\r\n== END Lobby ==\r\n");
+		
 	}
-	
-	
+		
 	// Shows messages on top of all other screens
 	public void message(string screen, string message)
 	{
 		
-		log("== INIT message ==");
-		log(" ");
+		log("== INIT message ==\r\n");
 		
 			if(screen == "hide")
 			{
@@ -191,12 +209,48 @@ public class Main_script : MonoBehaviour
 								
 			}
 					
-		log(" ");
-		log("== END message ==");
-		log(" ");
+		log("\r\n== END message ==\r\n");
 		
 	}
+	
+	private void loadpage(string name){
 		
+		XmlDocument xmlDoc = new XmlDocument(); 
+		
+		try
+        {
+			
+			xmlDoc.Load( Application.persistentDataPath + "/"+name+".txt" ); 
+					
+        }
+        catch (Exception e)
+        {
+            
+			log("\r\n**********\r\n ERROR : File not found. ("+name+")\r\n**********\r\n");
+		
+			return;
+		
+        }
+		
+		XmlNodeList pagelist = xmlDoc.GetElementsByTagName("page");
+		
+		foreach (XmlNode pageinfo in pagelist) {
+			
+			XmlNodeList pagecontent = pageinfo.ChildNodes;
+			
+			foreach (XmlNode pageitems in pagecontent) {
+				
+				
+				log(" PAGE :::::: "+pageitems.InnerText+" - id : "+pageitems.Attributes["id"].Value+" ");
+		
+				
+				
+			}			
+			
+		}		
+		
+	}
+	
 	// Function invoked at the start of every frame
 	void Update()
     {
@@ -208,8 +262,7 @@ public class Main_script : MonoBehaviour
 		if(screen_height != Screen.height)
 		{
 			
-			log("== INIT screen resize ==");
-			log(" ");
+			log("== INIT screen resize ==\r\n");
 			
 				flag = 1;
 			
@@ -220,9 +273,8 @@ public class Main_script : MonoBehaviour
 			if(screen_width != Screen.width)
 			{
 			
-				log("== INIT screen resize ==");
-				log(" ");
-
+				log("== INIT screen resize ==\r\n");
+				
 					flag = 1;
 				
 			}
@@ -253,9 +305,23 @@ public class Main_script : MonoBehaviour
 				if(lobby_screen != "")
 				{
 					
-					lobby(lobby_screen);
+					// lobby(lobby_screen);
 										
-				}			
+				}
+
+				if(main_screen != ""){
+					
+					GameObject.Find("Screens/Main/Main_content_page").GetComponent<RectTransform>().sizeDelta = new Vector2((float)(Screen.width-308.5), Screen.height);
+					log("    > Main_content_page size changed to : "+GameObject.Find("Screens/Main/Main_content_page").GetComponent<RectTransform>().sizeDelta);
+					
+					GameObject.Find("Screens/Main/Main_content_page/Title").GetComponent<RectTransform>().sizeDelta = new Vector2((float)(Screen.width-308.5), Screen.height);
+					log("    > Main_content/Title size changed to : "+GameObject.Find("Screens/Main/Main_content_page/Title").GetComponent<RectTransform>().sizeDelta);
+					
+					GameObject.Find("Screens/Main/Main_content_page/Content").GetComponent<RectTransform>().sizeDelta = new Vector2((float)(Screen.width-308.5), (float)(Screen.height-43.0));
+					log("    > Main_content/Content size changed to : "+GameObject.Find("Screens/Main/Main_content_page/Content").GetComponent<RectTransform>().sizeDelta);
+					
+					
+				}
 				
 				screen_width = Screen.width;
 				log("    > screen_width set to " + screen_width);
@@ -264,11 +330,7 @@ public class Main_script : MonoBehaviour
 				log("    > screen_height set to " + screen_height);
 			
 				
-			log(" ");
-			log("== END screen resize ==");
-			log(" ");	
-			
-			
+			log("\r\n== END screen resize ==\r\n");
 			
 		}
 		
@@ -276,9 +338,7 @@ public class Main_script : MonoBehaviour
 		if (Input.GetKeyDown(KeyCode.F1))
         {
 			
-			log(" ");
-			log("== F1 key pressed ==");
-			log(" ");
+			log("\r\n== F1 key pressed ==\r\n");
 			
 			// ht stores parameters for the tween animation
 			Hashtable ht = new Hashtable();
@@ -309,8 +369,15 @@ public class Main_script : MonoBehaviour
 		
     }
 	
-	
 	// Click Functions
+	
+	// Logs out and resets the app
+	public void logout()
+	{
+		
+		SceneManager.LoadScene( SceneManager.GetActiveScene().name );
+				
+	}
 	
 	public void login()
 	{
@@ -328,9 +395,8 @@ public class Main_script : MonoBehaviour
 		
 		// clears everything
 
-		log("== INIT Tab ==");
-		log(" ");
-
+		log("== INIT Tab ==\r\n");
+		
 			GameObject.Find("Screens/Main/Sidebar").transform.Find("Sidebar_contacts").gameObject.SetActive(false);
 			log("    > Sidebar_contacts set to inactive");
 			
@@ -366,8 +432,7 @@ public class Main_script : MonoBehaviour
 			GameObject.Find("Screens/Main/Sidebar/Tab_bar/Tab1").GetComponent<Image>().color = new Color(0.8f, 0.8f, 0.8f, 1f);
 			log("    > Tab1 color set to : "+GameObject.Find("Screens/Main/Sidebar/Tab_bar/Tab1").GetComponent<Image>().color);
 			
-			
-			
+						
 		}
 		else if(tab_id == "Tab2")
 		{
@@ -378,7 +443,7 @@ public class Main_script : MonoBehaviour
 			GameObject.Find("Screens/Main/Sidebar/Tab_bar/Tab2").GetComponent<Image>().color = new Color(0.8f, 0.8f, 0.8f, 1f);
 			log("    > Tab1 color set to : "+GameObject.Find("Screens/Main/Sidebar/Tab_bar/Tab2").GetComponent<Image>().color);
 			
-			
+		
 		}
 		else if(tab_id == "Tab3")
 		{
@@ -410,7 +475,7 @@ public class Main_script : MonoBehaviour
 	private void login_response(SimpleJSON.JSONNode r)
 	{
 		
-		// message("loading", "Updating information...");
+		// message("loading", "Updating information.. teest.");
 		
 		lobby("Hide");
 		
@@ -418,7 +483,20 @@ public class Main_script : MonoBehaviour
 				
 		GameObject.Find("Screens").transform.Find("Main").gameObject.SetActive(true);
 		log("    > Main set to active");
+		
+		GameObject.Find("Screens/Main/Main_content_page").GetComponent<RectTransform>().sizeDelta = new Vector2((float)(Screen.width-308.5), Screen.height);
+		log("    > Main_content_page size changed to : "+GameObject.Find("Screens/Main/Main_content_page").GetComponent<RectTransform>().sizeDelta);
+		
+		GameObject.Find("Screens/Main/Main_content_page/Title").GetComponent<RectTransform>().sizeDelta = new Vector2((float)(Screen.width-308.5), 43);
+		log("    > Main_content/Title size changed to : "+GameObject.Find("Screens/Main/Main_content_page/Title").GetComponent<RectTransform>().sizeDelta);
+		
+		GameObject.Find("Screens/Main/Main_content_page/Content").GetComponent<RectTransform>().sizeDelta = new Vector2((float)(Screen.width-308.5), (float)(Screen.height-43.0));
+		log("    > Main_content/Content size changed to : "+GameObject.Find("Screens/Main/Main_content_page/Content").GetComponent<RectTransform>().sizeDelta);
+		
+		
 			
+		main_screen = "Home";
+		
 		tab("Tab1");
 		
 	}
@@ -430,8 +508,8 @@ public class Main_script : MonoBehaviour
 	IEnumerator apicom(string json)
     {
 		
-		log("== INIT apicom ==");
-		log(" ");
+		log("== INIT apicom ==\r\n");
+		
 		
 		string api_url = "";
 		
@@ -531,15 +609,13 @@ public class Main_script : MonoBehaviour
 		
         } // end request
     
-		log(" ");
-		log("== END apicom ==");
-		log(" ");
+		log("\r\n== END apicom ==\r\n");
 			
 	}
 
 	
 	// Log Console Function
-	public void log(string msg)
+	private void log(string msg)
 	{
 		 
 		Debug.Log(msg);
@@ -555,10 +631,10 @@ public class Main_script : MonoBehaviour
 				
 	}
 	
-	// UI support functions
+	// Support functions
 	
 	// Helper function to set focus on input field
-	public void focus(string target)
+	private void focus(string target)
 	{
 				
 		GameObject.Find(target).GetComponent<TMP_InputField>().Select();
@@ -566,11 +642,48 @@ public class Main_script : MonoBehaviour
 				
 	}
 	
-	public string getvalue(string target)
+	// Get the value of an input field
+	private string getvalue(string target)
 	{
 				
 		return GameObject.Find(target).GetComponent<TMP_InputField>().text;
 		
+	}
+	
+	// Saves a txt File
+	// TODO: link to the database
+	private void savefile(string name, string text)
+	{
+		
+		System.IO.File.WriteAllText( Application.persistentDataPath + "/"+name+".txt", text);
+		
+	}
+	
+	// Load txt file
+	private string loadfile(string name)
+	{
+		
+		string response = "";
+		
+		try
+        {
+			
+            StreamReader r = File.OpenText(  Application.persistentDataPath + "/"+name+".txt" ); 
+			response = r.ReadToEnd(); 
+			r.Close(); 
+			
+        }
+        catch (Exception e)
+        {
+            
+			log("\r\n**********\r\n ERROR : File not found. ("+name+")\r\n**********\r\n");
+
+			response = null;
+			
+        }
+		
+		return response;
+	   
 	}
 	
 	
