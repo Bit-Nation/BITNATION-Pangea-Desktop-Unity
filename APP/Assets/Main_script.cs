@@ -16,6 +16,14 @@ using UnityEngine.SceneManagement;
 public class Main_script : MonoBehaviour
 {
 	
+	// PREFABS
+	
+	public Transform page_image;
+	public Transform page_text;
+	
+	
+	
+	
 	// production enviroment : 1 = true / 0 = false (test enviroment)
 	private int production = 0;
 	
@@ -103,12 +111,13 @@ public class Main_script : MonoBehaviour
 
 			//// TESTS
 			
-			string test = loadfile("mytest2");
+			// string test = loadfile("mytest2");
 			
 			
-			log("    > Test2: "+test);
+			// log("    > Test2: "+test);
 
-			loadpage("mytest2");
+			
+
 			
 			
 			
@@ -215,6 +224,10 @@ public class Main_script : MonoBehaviour
 	
 	private void loadpage(string name){
 		
+		log("== INIT loadpage ==\r\n");
+		
+		log("    > Page name: " + name);
+
 		XmlDocument xmlDoc = new XmlDocument(); 
 		
 		try
@@ -232,23 +245,125 @@ public class Main_script : MonoBehaviour
 		
         }
 		
+		Transform obj;
+		
 		XmlNodeList pagelist = xmlDoc.GetElementsByTagName("page");
 		
 		foreach (XmlNode pageinfo in pagelist) {
 			
+			if(pageinfo.Attributes["title"].Value != null){
+			
+				set_text("Screens/Main/Main_content_page/Title/Title_text", pageinfo.Attributes["title"].Value);
+				
+				log("    > Page title set to: "+get_text("Screens/Main/Main_content_page/Title/Title_text")); 
+
+				
+			}else{
+				
+				set_text("Screens/Main/Main_content_page/Title/Title_text", "#error");
+				
+				log("\r\n**********\r\n WARNING : Page title not found. (page:"+name+")\r\n**********\r\n");
+		
+			}
+			
+			clear("Screens/Main/Main_content_page/Content/Viewport/Content");
+						
 			XmlNodeList pagecontent = pageinfo.ChildNodes;
 			
+			
+			
 			foreach (XmlNode pageitems in pagecontent) {
-				
-				
-				log(" PAGE :::::: "+pageitems.InnerText+" - id : "+pageitems.Attributes["id"].Value+" ");
+								
+				// log(" PAGE :::::: Child name: "+pageitems.Name+" - id : "+pageitems.Attributes["id"].Value+" ");
 		
-				
+				if(pageitems.Name == "image")
+				{
+					
+					obj = Instantiate(page_image, new Vector3(0, 0, 0), Quaternion.identity);
+					
+					obj.SetParent(GameObject.Find("Screens/Main/Main_content_page/Content/Viewport/Content").gameObject.transform, false);
+
+					if(pageitems.Attributes["id"].Value != null)
+					{
+						
+						obj.name = "page_" + pageitems.Attributes["id"].Value;
+											
+					}else
+					{
+						
+						obj.name = "page_image";
+												
+					}
+								
+				}
+				else if(pageitems.Name == "text")
+				{
+					
+					obj = Instantiate(page_text, new Vector3(0, 0, 0), Quaternion.identity);
+					
+					obj.SetParent(GameObject.Find("Screens/Main/Main_content_page/Content/Viewport/Content").gameObject.transform, false);
+
+					
+
+					obj.GetComponent<TextMeshProUGUI>().text = pageitems.InnerText.Replace("{l}", "<").Replace("{b}", ">");
+					
+					if(pageitems.Attributes["id"].Value != null)
+					{
+						
+						obj.name = "page_" + pageitems.Attributes["id"].Value;
+											
+					}else
+					{
+						
+						obj.name = "page_text";
+												
+					}
+									
+					if(pageitems.Attributes["align"] != null)
+					{
+						
+						if(pageitems.Attributes["align"].Value == "left")
+						{
+							
+							obj.GetComponent<TextMeshProUGUI>().alignment = TMPro.TextAlignmentOptions.Left;
+						
+						}
+						else if(pageitems.Attributes["align"].Value == "center")
+						{
+							
+							obj.GetComponent<TextMeshProUGUI>().alignment = TMPro.TextAlignmentOptions.Center;
+													
+						}
+						else if(pageitems.Attributes["align"].Value == "right")
+						{
+							
+							obj.GetComponent<TextMeshProUGUI>().alignment = TMPro.TextAlignmentOptions.Right;
+													
+						}
+						else if(pageitems.Attributes["align"].Value == "justified")
+						{
+							
+							obj.GetComponent<TextMeshProUGUI>().alignment = TMPro.TextAlignmentOptions.Justified;
+													
+						}
+																	
+					}
+					
+					if(pageitems.Attributes["size"] != null)
+					{
+									
+						obj.GetComponent<TextMeshProUGUI>().fontSize = float.Parse(pageitems.Attributes["size"].Value);
+											
+					}
+					
+				}				
 				
 			}			
 			
-		}		
-		
+		}
+
+		log("\r\n== END loadpage ==\r\n");
+				
 	}
 	
 	// Function invoked at the start of every frame
@@ -466,6 +581,7 @@ public class Main_script : MonoBehaviour
 			
 		}
 		
+		log("\r\n== END Tab ==\r\n");
 		
 	}
 		
@@ -498,6 +614,9 @@ public class Main_script : MonoBehaviour
 		main_screen = "Home";
 		
 		tab("Tab1");
+		
+		loadpage("page1");
+			
 		
 	}
 	
@@ -643,12 +762,64 @@ public class Main_script : MonoBehaviour
 	}
 	
 	// Get the value of an input field
-	private string getvalue(string target)
+	private string get_value(string target)
 	{
 				
 		return GameObject.Find(target).GetComponent<TMP_InputField>().text;
 		
 	}
+	
+	// Get the value of an input field
+	private void set_text(string target, string text)
+	{
+		
+		if(GameObject.Find(target).GetComponent<TextMeshProUGUI>() != null){
+			
+			GameObject.Find(target).GetComponent<TextMeshProUGUI>().text = text;
+		
+		}
+		else
+		{
+			
+			log("\r\n**********\r\n ERROR : Text Object not found: "+target+"\r\n**********\r\n");
+			
+		}		
+		
+	}
+	
+	private string get_text(string target)
+	{
+		
+			return GameObject.Find(target).GetComponent<TextMeshProUGUI>().text;
+		
+		
+	}
+	
+	private void clear(string target)
+	{
+		
+		if(GameObject.Find(target).gameObject.transform != null){
+			
+			Transform obj = GameObject.Find(target).gameObject.transform;
+
+			foreach (Transform child in obj)
+			{
+				GameObject.Destroy(child.gameObject);
+			}
+			
+		}
+		else
+		{
+			
+			log("\r\n**********\r\n ERROR : Object not found: "+target+"\r\n**********\r\n");
+						
+		}		
+		
+		
+		
+		
+	}
+	
 	
 	// Saves a txt File
 	// TODO: link to the database
