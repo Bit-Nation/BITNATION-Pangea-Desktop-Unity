@@ -31,7 +31,7 @@ It will then create the proper executable on the desired folder.
 ## Contribute
 
 
-PRs are accepted.
+Pull requests are accepted.
 
 Small note: If editing the README, please conform to the standard-readme specification.
 
