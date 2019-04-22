@@ -22,8 +22,6 @@ public class Main_script : MonoBehaviour
 	public Transform page_text;
 	
 	
-	
-	
 	// production enviroment : 1 = true / 0 = false (test enviroment)
 	private int production = 0;
 	
@@ -111,15 +109,7 @@ public class Main_script : MonoBehaviour
 
 			//// TESTS
 			
-			// string test = loadfile("mytest2");
-			
-			
-			// log("    > Test2: "+test);
-
-			
-
-			
-			
+			downloadImage("test_image.png");		
 			
 			
     }
@@ -245,7 +235,10 @@ public class Main_script : MonoBehaviour
 		
         }
 		
+		// variables used in the page load
+		
 		Transform obj;
+		Texture2D texture;
 		
 		XmlNodeList pagelist = xmlDoc.GetElementsByTagName("page");
 		
@@ -283,7 +276,7 @@ public class Main_script : MonoBehaviour
 					
 					obj.SetParent(GameObject.Find("Screens/Main/Main_content_page/Content/Viewport/Content").gameObject.transform, false);
 
-					if(pageitems.Attributes["id"].Value != null)
+					if(pageitems.Attributes["id"] != null)
 					{
 						
 						obj.name = "page_" + pageitems.Attributes["id"].Value;
@@ -293,6 +286,23 @@ public class Main_script : MonoBehaviour
 						
 						obj.name = "page_image";
 												
+					}
+					
+					if(pageitems.Attributes["src"] != null)
+					{
+						
+						texture = new Texture2D(2, 2);
+						texture.LoadImage(loadImage(pageitems.Attributes["src"].Value));
+							
+						obj.GetComponent<Image>().sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f,0.5f));
+											
+					}
+					
+					if(pageitems.Attributes["link"] != null)
+					{
+						
+						obj.GetComponent<Button>().onClick.AddListener( delegate { loadpage(pageitems.Attributes["link"].Value); });
+					
 					}
 								
 				}
@@ -732,6 +742,94 @@ public class Main_script : MonoBehaviour
 			
 	}
 
+	
+	// Image functions
+
+	private void downloadImage(string image)
+	{
+		
+		log("\r\n== Load Image : "+image+"\r\n");
+
+		
+		string api_url = "";
+		
+		if(production == 1)
+		{
+			
+			api_url = "https://n1.nortrix.net/apps/bitnation/";
+			
+		}
+		else if(production == 0)
+		{
+			
+			api_url = "https://n1.nortrix.net/apps/bitnation/";
+			
+		}
+		else
+		{
+			
+			log("\r\n**********\r\n ERROR [#downloadimage001] : Invalid production enviroment : "+production+"\r\n**********\r\n");
+								
+		}
+		
+		
+		WWW www = new WWW(api_url+image);
+		StartCoroutine(_downloadImage(www, image));
+		
+	}
+	
+	private IEnumerator _downloadImage(WWW www, string name)
+	{
+		
+		yield return www;
+
+		//Check if we failed to send
+		if (string.IsNullOrEmpty(www.error))
+		{
+		
+			File.WriteAllBytes(Application.persistentDataPath + "/"+name, www.bytes);
+			
+			log("\r\n== Image downloaded : "+name+"\r\n");
+					
+		}
+		else
+		{
+			
+			log("\r\n**********\r\n ERROR [#downloadimage002] : Download error: "+www.error+"\r\n**********\r\n");
+		
+		}
+		
+	}
+	
+	byte[] loadImage(string image)
+	{
+		byte[] dataByte = null;
+
+		if (!File.Exists(Application.persistentDataPath+"/"+image))
+		{
+			
+			log("\r\n**********\r\n ERROR [#loadimage001] : File does not exist: "+image+"\r\n**********\r\n");
+			return null;
+			
+		}
+
+		try
+		{
+			
+			dataByte = File.ReadAllBytes(Application.persistentDataPath+"/"+image);
+			
+			log("\r\n== Image loaded : "+name+"\r\n");
+						
+		}
+		catch (Exception e)
+		{
+			
+			log("\r\n**********\r\n ERROR [#loadimage002] : Failed To Load Data from : "+image+" \r\n "+e.Message+"\r\n**********\r\n");
+			
+		}
+
+		return dataByte;
+	}
 	
 	// Log Console Function
 	private void log(string msg)
