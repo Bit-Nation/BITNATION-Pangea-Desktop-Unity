@@ -2,8 +2,9 @@
 
 # BITNATION-Pangea-Desktop-Unity
 
-* Table of Contents
+* Table of contents
 * Maintainers
+* How to build the app
 * Contribute
 * License
 
@@ -13,7 +14,7 @@
 * [Susanne Tarkowski Tempelhof](https://github.com/xsttx)
 * [Prameet Chakraborty](https://github.com/prameetc)
 
-## How to Build the App
+## How to build the app
 
 
 First you need to clone or download the repository from github.
