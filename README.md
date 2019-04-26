@@ -8,8 +8,11 @@
 * License
 
 ## Maintainers
+
 [Thiago Souza](https://github.com/ThiagoVSouza)
+
 [Susanne Tarkowski Tempelhof](https://github.com/xsttx)
+
 [Prameet Chakraborty](https://github.com/prameetc)
 
 ## How to Build the App
