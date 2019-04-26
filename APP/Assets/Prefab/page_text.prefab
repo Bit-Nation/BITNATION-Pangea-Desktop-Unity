@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 835208731012506412}
   - component: {fileID: 6193366090791639713}
   m_Layer: 0
-  m_Name: Text (1)
+  m_Name: page_text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -25,7 +25,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7664954099264953448}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
@@ -65,15 +65,7 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_text: "\tNam nunc velit, consectetur ac fermentum vel, facilisis imperdiet est.
-    Aliquam accumsan tristique ipsum eget porttitor. Aliquam a nisl quis mauris dapibus
-    blandit. Quisque tristique velit nisl, in auctor quam maximus vitae. Cras sed
-    ipsum ligula. Sed interdum finibus nisl, a sagittis magna ultrices et. Mauris
-    sed condimentum nisi. Fusce ligula lacus, hendrerit a varius sit amet, porta in
-    risus. Interdum et malesuada fames ac ante ipsum primis in faucibus. Cras mollis
-    risus et dolor tempus accumsan. Nulla facilisi. Nullam tellus mauris, ullamcorper
-    eget magna eu, tempus lobortis orci. Mauris mattis odio ut ante egestas, sed efficitur
-    magna vestibulum. "
+  m_text: Text
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -119,7 +111,7 @@ MonoBehaviour:
   m_enableWordWrapping: 1
   m_wordWrappingRatios: 0.4
   m_overflowMode: 0
-  m_firstOverflowCharacterIndex: 0
+  m_firstOverflowCharacterIndex: -1
   m_linkedTextComponent: {fileID: 0}
   m_isLinkedTextComponent: 0
   m_isTextTruncated: 0
@@ -142,12 +134,12 @@ MonoBehaviour:
   m_margin: {x: 0, y: 0, z: 0, w: 0}
   m_textInfo:
     textComponent: {fileID: 6193366090791639713}
-    characterCount: 660
+    characterCount: 4
     spriteCount: 0
-    spaceCount: 100
-    wordCount: 100
+    spaceCount: 0
+    wordCount: 1
     linkCount: 0
-    lineCount: 561
+    lineCount: 1
     pageCount: 1
     materialCount: 1
   m_havePropertiesChanged: 0

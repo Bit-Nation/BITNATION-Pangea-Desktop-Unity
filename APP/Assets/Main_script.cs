@@ -20,6 +20,8 @@ public class Main_script : MonoBehaviour
 	
 	public Transform page_image;
 	public Transform page_text;
+	public Transform page_input;
+	public Transform page_button;
 	
 	
 	// production enviroment : 1 = true / 0 = false (test enviroment)
@@ -96,6 +98,9 @@ public class Main_script : MonoBehaviour
 			
 		log("\r\n== END config ==\r\n");
 		
+			// Create main pages (Settings, account, wallets, etc...
+			create_pages();
+					
 			// Initiate the app showing the lobby
 			lobby("Login");
 			
@@ -106,10 +111,11 @@ public class Main_script : MonoBehaviour
 			GameObject.Find("Screens").transform.Find("Main").gameObject.SetActive(false);
 			log("    > Main set to inactive");
 
+			
 
 			//// TESTS
 			
-			downloadImage("test_image.png");		
+			// downloadImage("test_image.png");		
 			
 			
     }
@@ -239,12 +245,13 @@ public class Main_script : MonoBehaviour
 		
 		Transform obj;
 		Texture2D texture;
+		string first_field = ""; // used to give focus to the first input field created
 		
 		XmlNodeList pagelist = xmlDoc.GetElementsByTagName("page");
 		
 		foreach (XmlNode pageinfo in pagelist) {
 			
-			if(pageinfo.Attributes["title"].Value != null){
+			if(pageinfo.Attributes["title"] != null){
 			
 				set_text("Screens/Main/Main_content_page/Title/Title_text", pageinfo.Attributes["title"].Value);
 				
@@ -276,6 +283,8 @@ public class Main_script : MonoBehaviour
 					
 					obj.SetParent(GameObject.Find("Screens/Main/Main_content_page/Content/Viewport/Content").gameObject.transform, false);
 
+					// change the name of the image for reference
+
 					if(pageitems.Attributes["id"] != null)
 					{
 						
@@ -287,6 +296,8 @@ public class Main_script : MonoBehaviour
 						obj.name = "page_image";
 												
 					}
+					
+					// change the image sprite
 					
 					if(pageitems.Attributes["src"] != null)
 					{
@@ -304,7 +315,85 @@ public class Main_script : MonoBehaviour
 						obj.GetComponent<Button>().onClick.AddListener( delegate { loadpage(pageitems.Attributes["link"].Value); });
 					
 					}
+					
+					log("    > Page image created"); 
+
 								
+				}
+				else if(pageitems.Name == "button")
+				{
+					
+					obj = Instantiate(page_button, new Vector3(0, 0, 0), Quaternion.identity);
+					
+					obj.SetParent(GameObject.Find("Screens/Main/Main_content_page/Content/Viewport/Content").gameObject.transform, false);
+
+					if(pageitems.Attributes["link_page"] != null)
+					{
+						
+						obj.transform.Find("Button").GetComponent<Button>().onClick.AddListener( delegate { loadpage(pageitems.Attributes["link_page"].Value); });
+					
+					}
+					
+					if(pageitems.Attributes["label"] != null)
+					{
+						
+						obj.transform.Find("Button/Label").GetComponent<TextMeshProUGUI>().text = pageitems.Attributes["label"].Value;
+											
+					}else
+					{
+						
+						obj.transform.Find("Button/Label").GetComponent<TextMeshProUGUI>().text = "#error";
+																		
+					}
+					
+					log("    > Page button created"); 
+
+					
+				}
+				else if(pageitems.Name == "input")
+				{
+					
+					obj = Instantiate(page_input, new Vector3(0, 0, 0), Quaternion.identity);
+					
+					obj.SetParent(GameObject.Find("Screens/Main/Main_content_page/Content/Viewport/Content").gameObject.transform, false);
+					
+					// change name of the input field for reference
+					
+					if(pageitems.Attributes["id"] != null)
+					{
+						
+						obj.transform.Find("Input").name = "page_" + pageitems.Attributes["id"].Value;
+								
+						if(first_field == ""){
+												
+							first_field = pageitems.Attributes["id"].Value;
+							
+						}
+								
+					}else
+					{
+						
+						obj.transform.Find("Input").name = "page_input";
+												
+					}
+					
+					// change the text of the label 
+					
+					if(pageitems.Attributes["label"] != null)
+					{
+						
+						obj.transform.Find("Label").GetComponent<TextMeshProUGUI>().text = pageitems.Attributes["label"].Value;
+						
+											
+					}else
+					{
+						
+						obj.transform.Find("Label").GetComponent<TextMeshProUGUI>().text = "#error";
+											
+					}
+										
+					log("    > Page input created"); 
+					
 				}
 				else if(pageitems.Name == "text")
 				{
@@ -313,11 +402,13 @@ public class Main_script : MonoBehaviour
 					
 					obj.SetParent(GameObject.Find("Screens/Main/Main_content_page/Content/Viewport/Content").gameObject.transform, false);
 
-					
+					// change thte text
 
 					obj.GetComponent<TextMeshProUGUI>().text = pageitems.InnerText.Replace("{l}", "<").Replace("{b}", ">");
+										
+					// Change the name of the text for reference
 					
-					if(pageitems.Attributes["id"].Value != null)
+					if(pageitems.Attributes["id"] != null)
 					{
 						
 						obj.name = "page_" + pageitems.Attributes["id"].Value;
@@ -328,6 +419,8 @@ public class Main_script : MonoBehaviour
 						obj.name = "page_text";
 												
 					}
+					
+					// change text alignment
 									
 					if(pageitems.Attributes["align"] != null)
 					{
@@ -366,9 +459,20 @@ public class Main_script : MonoBehaviour
 											
 					}
 					
+					log("    > Page text created"); 
+
+					
 				}				
 				
 			}			
+			
+		}
+		
+		// give focus
+		
+		if(first_field != ""){
+			
+			focus("page_"+first_field);
 			
 		}
 
@@ -509,12 +613,14 @@ public class Main_script : MonoBehaviour
 		
 		message("loading", "Connecting to server ...");
 		
-		string json = "{\"function\":\"login\"}";		
-				
-		StartCoroutine(apicom(json));
+		string json = "{\"email\": \"teste\",\"password\": \"password\"} ";		
+			
+		// {\"function\":\"login\"}
+			
+		StartCoroutine(apicom(json,"/auth/login"));
 			
 	}
-	
+		
 	public void tab(string tab_id)
 	{
 		
@@ -594,7 +700,36 @@ public class Main_script : MonoBehaviour
 		log("\r\n== END Tab ==\r\n");
 		
 	}
+	
+	public void menu_page(string name){
 		
+		if(name == "settings")
+		{
+			
+			loadpage("settings");
+			
+		}
+		else if(name == "account")
+		{
+			
+			loadpage("account");
+						
+		}
+		else if(name == "wallets")
+		{
+			
+			loadpage("wallets");
+						
+		}
+		else
+		{
+			
+			log("\r\n**********\r\n Error : Invalid Page ("+name+")\r\n**********\r\n");
+			
+		}
+		
+		
+	}
 	
 	// Api Response functions
 	
@@ -634,7 +769,7 @@ public class Main_script : MonoBehaviour
 	// Communication functions
 	
 	// Api com function
-	IEnumerator apicom(string json)
+	IEnumerator apicom(string json, string function)
     {
 		
 		log("== INIT apicom ==\r\n");
@@ -647,7 +782,7 @@ public class Main_script : MonoBehaviour
 		if(production == 1)
 		{
 			
-			api_url = "https://n1.nortrix.net/apps/bitnation/api.php";
+			api_url = "https://bitnation-backend.herokuapp.com/auth/login";
 			
 		}
 		else if(production == 0)
@@ -667,11 +802,22 @@ public class Main_script : MonoBehaviour
 		// The other possible method is POST as variables in a form.
 		
 		WWWForm form = new WWWForm();
-        form.AddField("json", json);
 		
-        using (UnityWebRequest www = UnityWebRequest.Post(api_url, json))
+        // form.AddField("json", json);
+		form.headers ["email"] = "teste";
+		form.headers ["password"] = "teste";
+		
+		/*
+		Dictionary<string, string> headers = form.headers;
+		headers["email"] = "teste";
+		headers["password"] = "teste";
+		*/
+		
+        using (UnityWebRequest www = UnityWebRequest.Post(api_url, form))
         {
            
+		   
+		   
 			yield return www.Send();
 			
 			if (www.isNetworkError || www.isHttpError)
@@ -918,6 +1064,77 @@ public class Main_script : MonoBehaviour
 		
 	}
 	
+	// Configuration functions
+	
+	// This function creates the main pages of the system, like settings, wallets, etc...
+	private void create_pages(){
+		
+		log("== INIT create_pages ==\r\n");
+		
+		string text = "";
+		
+		if(loadfile("settings") == null){
+			
+			
+			text = 
+			
+				"<page title=\"Settings\">"+
+				"<text align=\"left\" size=\"24,5\">"+
+				"This is the settings page"+
+				"</text>"+
+				"<input label=\"Name\" id=\"name\"></input>"+
+				"<button label=\"My Button\" link_page=\"wallets\" vars=\"name\"></button>"+
+				"</page>";
+			
+			savefile("settings", text);
+			
+			log("    > Page Settings created");
+
+			
+		}
+		
+		if(loadfile("wallets") == null){
+			
+			
+			text = 
+			
+				"<page title=\"Wallets\">"+
+				"<text align=\"left\" size=\"24,5\">"+
+				"My Wallets"+
+				"</text>"+
+				"</page>";
+			
+			savefile("wallets", text);
+			
+			log("    > Page Wallets created");
+
+			
+		}
+		
+		if(loadfile("account") == null){
+			
+			
+			text = 
+			
+				"<page title=\"My Account\">"+
+				"<text align=\"left\" size=\"24,5\">"+
+				"My Account"+
+				"</text>"+
+				"</page>";
+			
+			savefile("account", text);
+			
+			log("    > Page Account created");
+
+			
+		}
+		
+		
+		log("\r\n== END create_pages ==\r\n");
+		
+		
+	}
+	
 	
 	// Saves a txt File
 	// TODO: link to the database
@@ -945,7 +1162,7 @@ public class Main_script : MonoBehaviour
         catch (Exception e)
         {
             
-			log("\r\n**********\r\n ERROR : File not found. ("+name+")\r\n**********\r\n");
+			log("\r\n**********\r\n Warning : File not found. ("+name+")\r\n**********\r\n");
 
 			response = null;
 			
