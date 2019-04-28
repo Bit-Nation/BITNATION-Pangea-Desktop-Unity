@@ -22,12 +22,13 @@ public class Main_script : MonoBehaviour
 	public Transform page_text;
 	public Transform page_input;
 	public Transform page_button;
+	public Transform page_bar;
+	public Transform page_area;
+	public Transform area_nation;
 	
 	
 	// production enviroment : 1 = true / 0 = false (test enviroment)
-	private int production = 0;
-	
-		
+	private int production = 1;
 	
     // Variable that stores the console messages
 	private string console = "Console:\r\n\r\n";
@@ -46,11 +47,12 @@ public class Main_script : MonoBehaviour
 	private float screen_width;
 	private float screen_height;
 	
-	
-	
 	// Main Database
 	SQLiteDB db = SQLiteDB.Instance;
+		
+	// Api com
 	
+	string current_apicom = "";
 	
 	// Function invoked when the program starts
 	void Start()
@@ -69,6 +71,13 @@ public class Main_script : MonoBehaviour
 			
 			Application.targetFrameRate = 30;
 			log("    > FrameRate set to " + Application.targetFrameRate);
+			
+			QualitySettings.vSyncCount = 0;
+			log("    > vSyncCount set to " + QualitySettings.vSyncCount);
+	
+			QualitySettings.asyncUploadTimeSlice = 32;
+			QualitySettings.asyncUploadBufferSize = 32;
+			QualitySettings.asyncUploadPersistentBuffer = true;
 			
 			screen_width = Screen.width;
 			log("    > screen_width set to " + screen_width);
@@ -112,7 +121,7 @@ public class Main_script : MonoBehaviour
 			log("    > Main set to inactive");
 
 			
-
+			
 			//// TESTS
 			
 			// downloadImage("test_image.png");		
@@ -177,7 +186,7 @@ public class Main_script : MonoBehaviour
 	}
 		
 	// Shows messages on top of all other screens
-	public void message(string screen, string message)
+	private void message(string screen, string message)
 	{
 		
 		log("== INIT message ==\r\n");
@@ -200,7 +209,10 @@ public class Main_script : MonoBehaviour
 				// Sets all sub screen to inactive
 				
 				GameObject.Find("Screens/Message").transform.Find("Loading").gameObject.SetActive(false);
-				log("    > Message/Loading set to inactive");				
+				log("    > Message/Loading set to inactive");	
+
+				GameObject.Find("Screens/Message").transform.Find("Error").gameObject.SetActive(false);
+				log("    > Message/Error set to inactive");						
 				
 				if(screen == "loading")
 				{
@@ -211,6 +223,15 @@ public class Main_script : MonoBehaviour
 					GameObject.Find("Screens/Message/Loading/Message").GetComponent<TextMeshProUGUI>().text = message;
 										
 				}
+				else if(screen == "error")
+				{
+					
+					GameObject.Find("Screens/Message").transform.Find("Error").gameObject.SetActive(true);
+					log("    > Message/Error set to active");		
+					
+					GameObject.Find("Screens/Message/Error/Message").GetComponent<TextMeshProUGUI>().text = message;
+										
+				}
 								
 			}
 					
@@ -218,7 +239,7 @@ public class Main_script : MonoBehaviour
 		
 	}
 	
-	private void loadpage(string name){
+	public void loadpage(string name){
 		
 		log("== INIT loadpage ==\r\n");
 		
@@ -270,8 +291,6 @@ public class Main_script : MonoBehaviour
 						
 			XmlNodeList pagecontent = pageinfo.ChildNodes;
 			
-			
-			
 			foreach (XmlNode pageitems in pagecontent) {
 								
 				// log(" PAGE :::::: Child name: "+pageitems.Name+" - id : "+pageitems.Attributes["id"].Value+" ");
@@ -309,16 +328,149 @@ public class Main_script : MonoBehaviour
 											
 					}
 					
-					if(pageitems.Attributes["link"] != null)
+					if(pageitems.Attributes["sprite"] != null)
 					{
 						
-						obj.GetComponent<Button>().onClick.AddListener( delegate { loadpage(pageitems.Attributes["link"].Value); });
+							
+						obj.GetComponent<Image>().sprite = Resources.Load<Sprite>("images/"+pageitems.Attributes["sprite"].Value);
+											
+					}
+										
+					if(pageitems.Attributes["link_page"] != null)
+					{
+						
+						obj.GetComponent<Button>().onClick.AddListener( delegate { loadpage(pageitems.Attributes["link_page"].Value); });
 					
+					}
+					
+					if(pageitems.Attributes["align"] != null)
+					{
+						
+						if(pageitems.Attributes["align"].Value == "left")
+						{
+							
+							obj.GetComponent<RectTransform>().pivot = new Vector2(0, 0);
+						
+						}
+						else if(pageitems.Attributes["align"].Value == "center")
+						{
+							
+							obj.GetComponent<RectTransform>().pivot = new Vector2((float)(0.5), 0);
+												
+						}
+						else if(pageitems.Attributes["align"].Value == "right")
+						{
+							
+							obj.GetComponent<RectTransform>().pivot = new Vector2(1, 0);
+													
+						}
+						
+																	
 					}
 					
 					log("    > Page image created"); 
 
 								
+				}
+				else if(pageitems.Name == "area")
+				{
+					
+					obj = Instantiate(page_area, new Vector3(0, 0, 0), Quaternion.identity);
+					
+					obj.SetParent(GameObject.Find("Screens/Main/Main_content_page/Content/Viewport/Content").gameObject.transform, false);
+
+					if(pageitems.Attributes["id"] != null)
+					{
+						
+						// obj.name = "page_" + pageitems.Attributes["id"].Value;
+						
+						obj.name = "page_"+Time.unscaledTime+"_" + pageitems.Attributes["id"].Value;
+						
+						// clear("Screens/Main/Main_content_page/Content/Viewport/Content/page_"+pageitems.Attributes["id"].Value+"/Scroll View/Viewport/Content");
+											
+					}else
+					{
+						
+						obj.name = "page_area";
+												
+					}
+											
+					log("    > Page area created"); 
+					
+				}
+				else if(pageitems.Name == "area_nation")
+				{
+					
+					obj = Instantiate(area_nation, new Vector3(0, 0, 0), Quaternion.identity);
+					
+					// obj.SetParent(GameObject.Find("Screens/Main/Main_content_page/Content/Viewport/Content").gameObject.transform, false);
+
+					if(pageitems.Attributes["id"] != null)
+					{
+						
+						obj.name = "page_" + pageitems.Attributes["id"].Value;
+											
+					}else
+					{
+						
+						obj.name = "page_area_nations";
+												
+					}
+					
+					if(pageitems.Attributes["target"] == null)
+					{
+						
+						log("\r\n**********\r\n Error : Area_nation target not provided.\r\n**********\r\n");
+								
+					}else{
+						
+						log("    > TARGET : "+pageitems.Attributes["target"].Value+"");
+						
+						
+						// obj.SetParent(GameObject.Find("Screens/Main/Main_content_page/Content/Viewport/Content/page_"+pageitems.Attributes["target"].Value+"/ScrollView/Viewport/Content").gameObject.transform, true);
+						
+						obj.SetParent(GameObject.Find("Screens/Main/Main_content_page/Content/Viewport/Content/page_"+Time.unscaledTime+"_"+pageitems.Attributes["target"].Value+"/ScrollView/Viewport/Content").gameObject.transform, true);
+						
+						/*
+						if(pageitems.Attributes["link_page"] != null)
+						{
+							
+							obj.transform.Find("Button").GetComponent<Button>().onClick.AddListener( delegate { loadpage(pageitems.Attributes["link_page"].Value); });
+						
+						}
+						*/
+						
+						obj.transform.Find("Text").GetComponent<TextMeshProUGUI>().text = pageitems.InnerText.Replace("{l}", "<").Replace("{b}", ">");
+												
+						log("    > Page area_nation created"); 
+						
+					}
+									
+				}
+				else if(pageitems.Name == "bar")
+				{
+					
+					obj = Instantiate(page_bar, new Vector3(0, 0, 0), Quaternion.identity);
+					
+					obj.SetParent(GameObject.Find("Screens/Main/Main_content_page/Content/Viewport/Content").gameObject.transform, false);
+
+					obj.transform.Find("Text").GetComponent<TextMeshProUGUI>().text = pageitems.InnerText.Replace("{l}", "<").Replace("{b}", ">");
+										
+					
+					if(pageitems.Attributes["height"] != null)
+					{
+						
+							
+						obj.GetComponent<RectTransform>().sizeDelta = new Vector2(0, float.Parse(pageitems.Attributes["height"].Value));
+											
+					}else{
+						
+						obj.GetComponent<RectTransform>().sizeDelta = new Vector2(0, 120);
+												
+					}											
+										
+					log("    > Page bar created"); 
+				
 				}
 				else if(pageitems.Name == "button")
 				{
@@ -475,6 +627,10 @@ public class Main_script : MonoBehaviour
 			focus("page_"+first_field);
 			
 		}
+		
+		// log("\r\n== Page spot 1: "+GameObject.Find("page_spot1").gameObject+" ==\r\n");
+		
+		
 
 		log("\r\n== END loadpage ==\r\n");
 				
@@ -543,7 +699,7 @@ public class Main_script : MonoBehaviour
 					GameObject.Find("Screens/Main/Main_content_page").GetComponent<RectTransform>().sizeDelta = new Vector2((float)(Screen.width-308.5), Screen.height);
 					log("    > Main_content_page size changed to : "+GameObject.Find("Screens/Main/Main_content_page").GetComponent<RectTransform>().sizeDelta);
 					
-					GameObject.Find("Screens/Main/Main_content_page/Title").GetComponent<RectTransform>().sizeDelta = new Vector2((float)(Screen.width-308.5), Screen.height);
+					GameObject.Find("Screens/Main/Main_content_page/Title").GetComponent<RectTransform>().sizeDelta = new Vector2((float)(Screen.width-308.5), (float)(43.0));
 					log("    > Main_content/Title size changed to : "+GameObject.Find("Screens/Main/Main_content_page/Title").GetComponent<RectTransform>().sizeDelta);
 					
 					GameObject.Find("Screens/Main/Main_content_page/Content").GetComponent<RectTransform>().sizeDelta = new Vector2((float)(Screen.width-308.5), (float)(Screen.height-43.0));
@@ -600,6 +756,14 @@ public class Main_script : MonoBehaviour
 	
 	// Click Functions
 	
+	public void close_message()
+	{
+		
+		message("hide", "");
+				
+	}
+	
+	
 	// Logs out and resets the app
 	public void logout()
 	{
@@ -616,6 +780,8 @@ public class Main_script : MonoBehaviour
 		string json = "{\"email\": \"teste\",\"password\": \"password\"} ";		
 			
 		// {\"function\":\"login\"}
+		
+		current_apicom = "login";
 			
 		StartCoroutine(apicom(json,"/auth/login"));
 			
@@ -721,6 +887,36 @@ public class Main_script : MonoBehaviour
 			loadpage("wallets");
 						
 		}
+		else if(name == "townhall")
+		{
+			
+			loadpage("townhall");
+						
+		}
+		else if(name == "nations")
+		{
+			
+			loadpage("nations");
+						
+		}
+		else if(name == "govmarketplace")
+		{
+			
+			loadpage("govmarketplace");
+						
+		}
+		else if(name == "proposals")
+		{
+			
+			loadpage("proposals");
+						
+		}
+		else if(name == "constitution")
+		{
+			
+			loadpage("constitution");
+						
+		}
 		else
 		{
 			
@@ -736,35 +932,44 @@ public class Main_script : MonoBehaviour
 	private void login_response(SimpleJSON.JSONNode r)
 	{
 		
-		// message("loading", "Updating information.. teest.");
 		
-		lobby("Hide");
+		log("== INIT login_response ==\r\n");
 		
-		message("hide", "");
+		log("    > Response Status: " + r["status"]);
+		
+		if( r["status"] == "error"){
+			
+			message("error", "Error\r\ninvalid citzen id and/or password.\r\nTry again.");
+			
+		}else{
+			
+			lobby("Hide");
+		
+			message("hide", "");
+					
+			GameObject.Find("Screens").transform.Find("Main").gameObject.SetActive(true);
+			log("    > Main set to active");
+			
+			GameObject.Find("Screens/Main/Main_content_page").GetComponent<RectTransform>().sizeDelta = new Vector2((float)(Screen.width-308.5), Screen.height);
+			log("    > Main_content_page size changed to : "+GameObject.Find("Screens/Main/Main_content_page").GetComponent<RectTransform>().sizeDelta);
+			
+			GameObject.Find("Screens/Main/Main_content_page/Title").GetComponent<RectTransform>().sizeDelta = new Vector2((float)(Screen.width-308.5), 43);
+			log("    > Main_content/Title size changed to : "+GameObject.Find("Screens/Main/Main_content_page/Title").GetComponent<RectTransform>().sizeDelta);
+			
+			GameObject.Find("Screens/Main/Main_content_page/Content").GetComponent<RectTransform>().sizeDelta = new Vector2((float)(Screen.width-308.5), (float)(Screen.height-43.0));
+			log("    > Main_content/Content size changed to : "+GameObject.Find("Screens/Main/Main_content_page/Content").GetComponent<RectTransform>().sizeDelta);
 				
-		GameObject.Find("Screens").transform.Find("Main").gameObject.SetActive(true);
-		log("    > Main set to active");
-		
-		GameObject.Find("Screens/Main/Main_content_page").GetComponent<RectTransform>().sizeDelta = new Vector2((float)(Screen.width-308.5), Screen.height);
-		log("    > Main_content_page size changed to : "+GameObject.Find("Screens/Main/Main_content_page").GetComponent<RectTransform>().sizeDelta);
-		
-		GameObject.Find("Screens/Main/Main_content_page/Title").GetComponent<RectTransform>().sizeDelta = new Vector2((float)(Screen.width-308.5), 43);
-		log("    > Main_content/Title size changed to : "+GameObject.Find("Screens/Main/Main_content_page/Title").GetComponent<RectTransform>().sizeDelta);
-		
-		GameObject.Find("Screens/Main/Main_content_page/Content").GetComponent<RectTransform>().sizeDelta = new Vector2((float)(Screen.width-308.5), (float)(Screen.height-43.0));
-		log("    > Main_content/Content size changed to : "+GameObject.Find("Screens/Main/Main_content_page/Content").GetComponent<RectTransform>().sizeDelta);
-		
-		
+			main_screen = "Home";
 			
-		main_screen = "Home";
-		
-		tab("Tab1");
-		
-		loadpage("page1");
+			tab("Tab1");
 			
+			loadpage("townhall");
+						
+		}
 		
+		log("\r\n== END login_response ==\r\n");
+					
 	}
-	
 	
 	// Communication functions
 	
@@ -856,23 +1061,20 @@ public class Main_script : MonoBehaviour
 					else
 					{
 						
-						if(r["function"] == "login")
+						if(current_apicom == "login")
 						{
-														
+							
 							login_response(r); // response
+							
+							current_apicom = "";
 							
 						}
 						else
 						{
 							
 							log("    > ERROR [#apicom003] : Unknown response error.");
-							
-							//// SHOW ERROR MESSAGE SCREEN HERE!
-							
-							// test change
-                									
+														
 						}
-						
 						
 						
 					}
@@ -888,7 +1090,6 @@ public class Main_script : MonoBehaviour
 			
 	}
 
-	
 	// Image functions
 
 	private void downloadImage(string image)
@@ -1042,6 +1243,7 @@ public class Main_script : MonoBehaviour
 	private void clear(string target)
 	{
 		
+			
 		if(GameObject.Find(target).gameObject.transform != null){
 			
 			Transform obj = GameObject.Find(target).gameObject.transform;
@@ -1072,6 +1274,210 @@ public class Main_script : MonoBehaviour
 		log("== INIT create_pages ==\r\n");
 		
 		string text = "";
+		
+		if(loadfile("townhall") == null){
+			
+			
+			text = 
+			
+				"<page title=\"Townhall\">"+
+				
+				"<image id=\"banner\" sprite=\"banner_townhall\" align=\"center\"></image>"+
+				"<bar>{l}b{b}# News and Updates from Bitnation{l}/b{b}</bar>"+
+				"<text align=\"justified\" size=\"18\">"+
+				"\r\n"+
+				"02/05/2019 - Desktop app updated!\r\n\r\n"+
+				"Aenean vitae nulla sed enim vehicula tristique. Suspendisse ornare a erat at viverra. Aliquam consectetur sagittis ultricies. Donec vitae blandit orci. Fusce interdum finibus neque id posuere. Nulla ac lorem quam. Maecenas ut molestie libero, gravida finibus risus. Duis elementum mollis lacus, et varius tortor hendrerit commodo. Cras bibendum, sem vitae consectetur bibendum, ipsum tortor efficitur elit, sed ultrices nisi libero vitae urna. Suspendisse et venenatis ex. Phasellus et aliquam diam. Curabitur imperdiet pretium nisi eu tincidunt."+
+				"\r\n\r\n"+
+				"</text>"+
+				
+				"<bar>{l}b{b}# Spotlight From Gov Marketplace{l}/b{b}</bar>"+
+				
+				"<area id=\"gov_spotlight\"></area>"+
+			
+				"<area_nation id=\"spot1\" target=\"gov_spotlight\">Bit Crypto Courses</area_nation>"+
+				
+				"<area_nation id=\"spot2\" target=\"gov_spotlight\">Bitnation T-shirts</area_nation>"+
+				
+				"<area_nation id=\"spot3\" target=\"gov_spotlight\">Bitnation Mug</area_nation>"+
+				
+				"<area_nation id=\"spot4\" target=\"gov_spotlight\">Bitnation Phone Covers</area_nation>"+
+				
+				
+				"<bar>{l}b{b}# Nation Spotlight{l}/b{b}</bar>"+
+				
+				"<area id=\"nation_spotlight\"></area>"+
+				
+				"<area_nation target=\"nation_spotlight\">Catalunya</area_nation>"+
+				
+				"<area_nation target=\"nation_spotlight\">Howingas</area_nation>"+
+				
+				"<area_nation target=\"nation_spotlight\">Hawaian Nation</area_nation>"+
+				
+				"<area_nation target=\"nation_spotlight\">Ideias Radicais</area_nation>"+
+				
+				
+				"</page>";
+			
+			savefile("townhall", text);
+			
+			log("    > Page Townhall created");
+
+			
+		}
+		
+		if(loadfile("govmarketplace") == null){
+			
+			
+			text = 
+			
+				"<page title=\"GovMarketplace\">"+
+				
+					"<bar>{l}b{b}# Gov Marketplace Spotlight{l}/b{b}</bar>"+
+					
+					
+				
+				"</page>";
+			
+			savefile("govmarketplace", text);
+			
+			log("    > Page Govmarketplace created");
+
+			
+		}
+		
+		if(loadfile("nations") == null){
+			
+			
+			text = 
+			
+				"<page title=\"Nations\">"+
+				
+				"<image id=\"banner\" sprite=\"banner_create_nation\" align=\"center\" link_page=\"nations_new1\"></image>"+
+				
+				"<bar>{l}b{b}# Nations Spotlight{l}/b{b}</bar>"+
+				
+				"<area id=\"nation_spotlight\"></area>"+
+				
+				"<area_nation target=\"nation_spotlight\">Catalunya</area_nation>"+
+				
+				"<area_nation target=\"nation_spotlight\">Howingas</area_nation>"+
+				
+				"<area_nation target=\"nation_spotlight\">Hawaian Nation</area_nation>"+
+				
+				"<area_nation target=\"nation_spotlight\">Ideias Radicais</area_nation>"+
+				
+				
+				"<bar>{l}b{b}# All Nations{l}/b{b}</bar>"+
+				
+				
+				"</page>";
+			
+			savefile("nations", text);
+			
+			log("    > Page Nations created");
+
+			
+		}
+		
+		if(loadfile("nations_new1") == null){
+			
+			
+			text = 
+			
+				"<page title=\"Start a new Nation\">"+
+				
+				"<text align=\"left\" size=\"18\">"+
+				"\r\n{l}b{b}First Select your nation plan:{l}/b{b}"+
+				"\r\n\r\n"+
+				"</text>"+
+				
+				"<image id=\"plan1\" sprite=\"plan1\" align=\"left\" link_page=\"nations_new1\"></image>"+
+				
+				"<image id=\"plan2\" sprite=\"plan2\" align=\"left\" link_page=\"nations_new2\"></image>"+
+				
+				"<image id=\"plan3\" sprite=\"plan3\" align=\"left\" link_page=\"nations_new3\"></image>"+
+				
+				"<image id=\"plan4\" sprite=\"plan4\" align=\"left\" link_page=\"nations_new2\"></image>"+
+				
+				"<image id=\"plan5\" sprite=\"plan5\" align=\"left\" link_page=\"nations_new2\"></image>"+
+				
+				
+				"<button label=\"Go Back\" link_page=\"nations\" vars=\"name\"></button>"+
+								
+				"</page>";
+			
+			savefile("nations_new1", text);
+			
+			log("    > Page Nations_new1 created");
+
+			
+		}
+		
+		if(loadfile("proposals") == null){
+			
+			
+			text = 
+			
+				"<page title=\"Proposals\">"+
+				
+				"<bar>{l}b{b}# Proposals{l}/b{b}</bar>"+
+				
+				"</page>";
+			
+			savefile("proposals", text);
+			
+			log("    > Page Proposals created");
+
+			
+		}
+		
+		if(loadfile("constitution") == null){
+			
+			
+			text = 
+			
+				"<page title=\"Constitution\">"+
+				
+				"<bar>{l}b{b}# Article 1{l}/b{b}</bar>"+
+				
+				"<text align=\"justified\" size=\"18\">"+
+				"Aenean vitae nulla sed enim vehicula tristique. Suspendisse ornare a erat at viverra. Aliquam consectetur sagittis ultricies. Donec vitae blandit orci. Fusce interdum finibus neque id posuere. Nulla ac lorem quam. Maecenas ut molestie libero, gravida finibus risus. Duis elementum mollis lacus, et varius tortor hendrerit commodo. Cras bibendum, sem vitae consectetur bibendum, ipsum tortor efficitur elit, sed ultrices nisi libero vitae urna. Suspendisse et venenatis ex. Phasellus et aliquam diam. Curabitur imperdiet pretium nisi eu tincidunt."+
+				"</text>"+
+				
+				"<bar>{l}b{b}# Article 2{l}/b{b}</bar>"+
+				
+				"<text align=\"justified\" size=\"18\">"+
+				"Aenean vitae nulla sed enim vehicula tristique. Suspendisse ornare a erat at viverra. Aliquam consectetur sagittis ultricies. Donec vitae blandit orci. Fusce interdum finibus neque id posuere. Nulla ac lorem quam. Maecenas ut molestie libero, gravida finibus risus. Duis elementum mollis lacus, et varius tortor hendrerit commodo. Cras bibendum, sem vitae consectetur bibendum, ipsum tortor efficitur elit, sed ultrices nisi libero vitae urna. Suspendisse et venenatis ex. Phasellus et aliquam diam. Curabitur imperdiet pretium nisi eu tincidunt."+
+				"</text>"+
+				
+				"<bar>{l}b{b}# Article 3{l}/b{b}</bar>"+
+				
+				"<text align=\"justified\" size=\"18\">"+
+				"Aenean vitae nulla sed enim vehicula tristique. Suspendisse ornare a erat at viverra. Aliquam consectetur sagittis ultricies. Donec vitae blandit orci. Fusce interdum finibus neque id posuere. Nulla ac lorem quam. Maecenas ut molestie libero, gravida finibus risus. Duis elementum mollis lacus, et varius tortor hendrerit commodo. Cras bibendum, sem vitae consectetur bibendum, ipsum tortor efficitur elit, sed ultrices nisi libero vitae urna. Suspendisse et venenatis ex. Phasellus et aliquam diam. Curabitur imperdiet pretium nisi eu tincidunt."+
+				"</text>"+
+				
+				"<bar>{l}b{b}# Article 4{l}/b{b}</bar>"+
+				
+				"<text align=\"justified\" size=\"18\">"+
+				"Aenean vitae nulla sed enim vehicula tristique. Suspendisse ornare a erat at viverra. Aliquam consectetur sagittis ultricies. Donec vitae blandit orci. Fusce interdum finibus neque id posuere. Nulla ac lorem quam. Maecenas ut molestie libero, gravida finibus risus. Duis elementum mollis lacus, et varius tortor hendrerit commodo. Cras bibendum, sem vitae consectetur bibendum, ipsum tortor efficitur elit, sed ultrices nisi libero vitae urna. Suspendisse et venenatis ex. Phasellus et aliquam diam. Curabitur imperdiet pretium nisi eu tincidunt."+
+				"</text>"+
+				
+				"<bar>{l}b{b}# Article 5{l}/b{b}</bar>"+
+				
+				"<text align=\"justified\" size=\"18\">"+
+				"Aenean vitae nulla sed enim vehicula tristique. Suspendisse ornare a erat at viverra. Aliquam consectetur sagittis ultricies. Donec vitae blandit orci. Fusce interdum finibus neque id posuere. Nulla ac lorem quam. Maecenas ut molestie libero, gravida finibus risus. Duis elementum mollis lacus, et varius tortor hendrerit commodo. Cras bibendum, sem vitae consectetur bibendum, ipsum tortor efficitur elit, sed ultrices nisi libero vitae urna. Suspendisse et venenatis ex. Phasellus et aliquam diam. Curabitur imperdiet pretium nisi eu tincidunt."+
+				"</text>"+
+				
+				
+				"</page>";
+			
+			savefile("constitution", text);
+			
+			log("    > Page Proposals created");
+
+			
+		}
 		
 		if(loadfile("settings") == null){
 			
