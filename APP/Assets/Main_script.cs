@@ -28,7 +28,7 @@ public class Main_script : MonoBehaviour
 	
 	
 	// production enviroment : 1 = true / 0 = false (test enviroment)
-	private int production = 1;
+	private int production = 0;
 	
     // Variable that stores the console messages
 	private string console = "Console:\r\n\r\n";
@@ -772,16 +772,17 @@ public class Main_script : MonoBehaviour
 				
 	}
 	
+	// Click on the login button
 	public void login()
 	{
 		
 		message("loading", "Connecting to server ...");
 		
-		string json = "{\"email\": \"teste\",\"password\": \"password\"} ";		
+		string json = "{\"request\": \"login\",\"username\": \""+get_value("Input_login")+"\",\"password\": \""+get_value("Input_password")+"\"} ";		
 			
 		// {\"function\":\"login\"}
 		
-		current_apicom = "login";
+		// current_apicom = "login";
 			
 		StartCoroutine(apicom(json,"/auth/login"));
 			
@@ -987,13 +988,14 @@ public class Main_script : MonoBehaviour
 		if(production == 1)
 		{
 			
-			api_url = "https://bitnation-backend.herokuapp.com/auth/login";
+			// api_url = "http://bitnation-backend.herokuapp.com/auth/login";
+			api_url = "http://bitnationapi.azurewebsites.net/api.php";
 			
 		}
 		else if(production == 0)
 		{
 			
-			api_url = "https://n1.nortrix.net/apps/bitnation/api.php";
+			api_url = "http://bitnationapi.azurewebsites.net/api.php";
 			
 		}
 		else
@@ -1008,9 +1010,9 @@ public class Main_script : MonoBehaviour
 		
 		WWWForm form = new WWWForm();
 		
-        // form.AddField("json", json);
-		form.headers ["email"] = "teste";
-		form.headers ["password"] = "teste";
+        form.AddField("json", json);
+		// form.headers ["email"] = "teste";
+		// form.headers ["password"] = "teste";
 		
 		/*
 		Dictionary<string, string> headers = form.headers;
@@ -1024,6 +1026,12 @@ public class Main_script : MonoBehaviour
 		   
 		   
 			yield return www.Send();
+			
+			log("    > API request sent.");
+			
+			
+			log("\r\n== END apicom ==\r\n");
+		
 			
 			if (www.isNetworkError || www.isHttpError)
             {
@@ -1052,15 +1060,23 @@ public class Main_script : MonoBehaviour
 				else
 				{
 					
+					log("== INIT apicom response ==\r\n");
+		
+					
 					if (r["error"] == "yes")
                     {
 					
 						//// SHOW ERROR MESSAGE SCREEN HERE!
-                					
+                		
+						message("error", r["error_message"]);
+											
+						
 					}
 					else
 					{
+						message("error", r["error_message"]);
 						
+						/*
 						if(current_apicom == "login")
 						{
 							
@@ -1075,9 +1091,13 @@ public class Main_script : MonoBehaviour
 							log("    > ERROR [#apicom003] : Unknown response error.");
 														
 						}
+						*/
 						
 						
 					}
+					
+					
+					log("\r\n== END response ==\r\n");
 					
 				}
 						
@@ -1086,7 +1106,7 @@ public class Main_script : MonoBehaviour
 		
         } // end request
     
-		log("\r\n== END apicom ==\r\n");
+		// log("\r\n== END apicom ==\r\n");
 			
 	}
 
@@ -1232,6 +1252,8 @@ public class Main_script : MonoBehaviour
 		
 	}
 	
+	
+	// Get the text from a text area
 	private string get_text(string target)
 	{
 		
@@ -1240,6 +1262,7 @@ public class Main_script : MonoBehaviour
 		
 	}
 	
+	// removes all child objects
 	private void clear(string target)
 	{
 		
