@@ -1173,8 +1173,8 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 519420030}
-        m_MethodName: lobby
-        m_Mode: 5
+        m_MethodName: new_user
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -6402,7 +6402,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &527406504
 RectTransform:
   m_ObjectHideFlags: 0
@@ -7547,7 +7547,7 @@ GameObject:
   - component: {fileID: 740840470}
   - component: {fileID: 740840469}
   m_Layer: 0
-  m_Name: Input_name
+  m_Name: Input_new_name
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8364,7 +8364,7 @@ GameObject:
   - component: {fileID: 781269611}
   - component: {fileID: 781269610}
   m_Layer: 0
-  m_Name: Input_citzen_id
+  m_Name: Input_new_citzen_id
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8475,7 +8475,18 @@ MonoBehaviour:
       Culture=neutral, PublicKeyToken=null
   m_OnValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 519420030}
+        m_MethodName: change_id
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_TypeName: TMPro.TMP_InputField+OnChangeEvent, Unity.TextMeshPro, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
   m_CaretColor: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
@@ -12460,7 +12471,7 @@ GameObject:
   - component: {fileID: 1133057427}
   - component: {fileID: 1133057426}
   m_Layer: 0
-  m_Name: Button_create
+  m_Name: Button_restore
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -12527,8 +12538,8 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 519420030}
-        m_MethodName: lobby
-        m_Mode: 5
+        m_MethodName: retrieve
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -16281,7 +16292,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.255268, y: 0.15264814}
   m_AnchorMax: {x: 0.97400004, y: 0.41700003}
-  m_AnchoredPosition: {x: -0.039993286, y: -0.2800007}
+  m_AnchoredPosition: {x: -0.039993286, y: -0.27999878}
   m_SizeDelta: {x: 0.22000122, y: -0.54999924}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1469632420
@@ -23529,7 +23540,7 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_text: Username@bitnation
+  m_text: '@bitnation'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -23598,10 +23609,10 @@ MonoBehaviour:
   m_margin: {x: 0, y: 0, z: 0, w: 0}
   m_textInfo:
     textComponent: {fileID: 2090496310}
-    characterCount: 18
+    characterCount: 10
     spriteCount: 0
     spaceCount: 0
-    wordCount: 2
+    wordCount: 1
     linkCount: 0
     lineCount: 1
     pageCount: 1

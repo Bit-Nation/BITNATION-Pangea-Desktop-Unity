@@ -47,6 +47,10 @@ public class Main_script : MonoBehaviour
 	private float screen_width;
 	private float screen_height;
 	
+	
+	private string token;
+	
+	
 	// Main Database
 	SQLiteDB db = SQLiteDB.Instance;
 		
@@ -164,7 +168,7 @@ public class Main_script : MonoBehaviour
 					GameObject.Find("Screens").transform.Find("Create_account").gameObject.SetActive(true);
 					log("    > Create_account set to active");
 					
-					focus("Input_name");
+					focus("Input_new_name"); // Input_new_name1
 					log("    > Focus set to Input_name");
 										
 				}
@@ -754,7 +758,9 @@ public class Main_script : MonoBehaviour
 		
     }
 	
-	// Click Functions
+	// ***********************************
+	// 		Interactive Functions
+	// ***********************************
 	
 	public void close_message()
 	{
@@ -762,8 +768,7 @@ public class Main_script : MonoBehaviour
 		message("hide", "");
 				
 	}
-	
-	
+		
 	// Logs out and resets the app
 	public void logout()
 	{
@@ -787,6 +792,56 @@ public class Main_script : MonoBehaviour
 		StartCoroutine(apicom(json,"/auth/login"));
 			
 	}
+	
+	// 
+	public void new_user()
+	{
+		
+		if(get_value("Input_new_password") != get_value("Input_new_repassword")){
+			
+			message("error", "Retyped password mismatch.");
+		
+			return;
+			
+		}
+		
+		message("loading", "Connecting to server ...");
+		
+		string json = "{\"request\": \"new_user\","+
+		
+			"\"username\": \""+get_value("Input_new_name")+"\","+
+			
+			"\"citzen_id\": \""+get_value("Input_new_citzen_id")+"\","+
+			
+			"\"password\": \""+get_value("Input_new_password")+"\","+
+			
+			"\"email\": \""+get_value("Input_new_email")+"\""+
+						
+		"} ";		
+				
+		StartCoroutine(apicom(json,""));
+			
+	}
+	
+	// Change the text from the create new user screen
+	public void change_id()
+	{
+		
+		set_text("Text_full_citzen_id", get_value("Input_new_citzen_id")+"@bitnation");
+		
+	}
+		
+	// Click on the login button
+	public void retrieve()
+	{
+		
+		message("loading", "Connecting to server ...");
+		
+		string json = "{ \"request\": \"retrieve\",\"email\": \""+get_value("Input_email")+"\" } ";		
+			
+		StartCoroutine(apicom(json,""));
+			
+	}		
 		
 	public void tab(string tab_id)
 	{
@@ -928,7 +983,10 @@ public class Main_script : MonoBehaviour
 		
 	}
 	
-	// Api Response functions
+	
+	// ***********************************
+	// 		API Response Functions
+	// ***********************************
 	
 	private void login_response(SimpleJSON.JSONNode r)
 	{
@@ -938,12 +996,9 @@ public class Main_script : MonoBehaviour
 		
 		log("    > Response Status: " + r["status"]);
 		
-		if( r["status"] == "error"){
-			
-			message("error", "Error\r\ninvalid citzen id and/or password.\r\nTry again.");
-			
-		}else{
-			
+			token = r["token"];
+			log("    > Token set to : "+token);
+					
 			lobby("Hide");
 		
 			message("hide", "");
@@ -966,13 +1021,15 @@ public class Main_script : MonoBehaviour
 			
 			loadpage("townhall");
 						
-		}
+		
 		
 		log("\r\n== END login_response ==\r\n");
 					
 	}
 	
-	// Communication functions
+	// ***********************************
+	// 		Comunication Functions
+	// ***********************************
 	
 	// Api com function
 	IEnumerator apicom(string json, string function)
@@ -1044,6 +1101,9 @@ public class Main_script : MonoBehaviour
 			else
 			{
 				
+				log("== INIT apicom response ==\r\n");
+		
+					
 				// Show results as text
                 log("    > Apicom response : " + www.downloadHandler.text);
 			
@@ -1060,10 +1120,8 @@ public class Main_script : MonoBehaviour
 				else
 				{
 					
-					log("== INIT apicom response ==\r\n");
-		
 					
-					if (r["error"] == "yes")
+					if (r["error"] == "true")
                     {
 					
 						//// SHOW ERROR MESSAGE SCREEN HERE!
@@ -1074,28 +1132,37 @@ public class Main_script : MonoBehaviour
 					}
 					else
 					{
-						message("error", r["error_message"]);
 						
-						/*
-						if(current_apicom == "login")
+						if(r["request"] == "login")
 						{
 							
-							login_response(r); // response
+							login_response(r);
 							
-							current_apicom = "";
+						}
+						else if(r["request"] == "new_user")
+						{
 							
+							lobby("Login");
+							message("error", "New user sucessfully created!");
+													
+						}
+						else if(r["request"] == "retrieve")
+						{
+							
+							message("error", "Check your email with the information.");
+													
 						}
 						else
 						{
 							
+							message("error", r["error_message"]);
+							
 							log("    > ERROR [#apicom003] : Unknown response error.");
-														
+							
+							
 						}
-						*/
-						
-						
-					}
-					
+												
+					}					
 					
 					log("\r\n== END response ==\r\n");
 					
@@ -1215,14 +1282,22 @@ public class Main_script : MonoBehaviour
 				
 	}
 	
-	// Support functions
+	// ***********************************
+	// 		Support Functions
+	// ***********************************
 	
 	// Helper function to set focus on input field
 	private void focus(string target)
 	{
-				
-		GameObject.Find(target).GetComponent<TMP_InputField>().Select();
-		GameObject.Find(target).GetComponent<TMP_InputField>().ActivateInputField();
+		if( GameObject.Find(target).GetComponent<TMP_InputField>() != null )
+        {
+        	GameObject.Find(target).GetComponent<TMP_InputField>().Select();
+			GameObject.Find(target).GetComponent<TMP_InputField>().ActivateInputField();
+		}
+        else
+        {
+        	log("\r\n**********\r\n ERROR : Focus Object not found: "+target+"\r\n**********\r\n");
+		}
 				
 	}
 	
@@ -1251,7 +1326,7 @@ public class Main_script : MonoBehaviour
 		}		
 		
 	}
-	
+
 	
 	// Get the text from a text area
 	private string get_text(string target)
@@ -1289,7 +1364,9 @@ public class Main_script : MonoBehaviour
 		
 	}
 	
-	// Configuration functions
+	// ***********************************
+	// 		Configuration Functions
+	// ***********************************
 	
 	// This function creates the main pages of the system, like settings, wallets, etc...
 	private void create_pages(){
