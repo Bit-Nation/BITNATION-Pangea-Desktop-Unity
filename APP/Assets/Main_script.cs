@@ -54,6 +54,8 @@ public class Main_script : MonoBehaviour
 	
 	
 	private string token;
+	private string id_user;
+	private string last_update;
 	
 	
 	// Main Database
@@ -200,13 +202,13 @@ public class Main_script : MonoBehaviour
 	private void message(string screen, string message)
 	{
 		
-		log("== INIT message ==\r\n");
+		log("\r\n    == INIT message ==\r\n");
 		
 			if(screen == "hide")
 			{
 				
 				GameObject.Find("Screens").transform.Find("Message").gameObject.SetActive(false);
-				log("    > Message set to inactive");
+				log("        > Message set to inactive");
 								
 			}
 			else
@@ -215,24 +217,24 @@ public class Main_script : MonoBehaviour
 				// Activate the main message screen with black background
 				
 				GameObject.Find("Screens").transform.Find("Message").gameObject.SetActive(true);
-				log("    > Message set to active");
+				log("        > Message set to active");
 									
 				// Sets all sub screen to inactive
 				
 				GameObject.Find("Screens/Message").transform.Find("Loading").gameObject.SetActive(false);
-				log("    > Message/Loading set to inactive");	
+				log("        > Message/Loading set to inactive");	
 
 				GameObject.Find("Screens/Message").transform.Find("Error").gameObject.SetActive(false);
-				log("    > Message/Error set to inactive");						
+				log("        > Message/Error set to inactive");						
 				
 				GameObject.Find("Screens/Message").transform.Find("Version").gameObject.SetActive(false);
-				log("    > Message/Version set to inactive");						
+				log("        > Message/Version set to inactive");						
 				
 				if(screen == "loading")
 				{
 					
 					GameObject.Find("Screens/Message").transform.Find("Loading").gameObject.SetActive(true);
-					log("    > Message/Loading set to active");		
+					log("        > Message/Loading set to active");		
 					
 					GameObject.Find("Screens/Message/Loading/Message").GetComponent<TextMeshProUGUI>().text = message;
 										
@@ -241,7 +243,7 @@ public class Main_script : MonoBehaviour
 				{
 					
 					GameObject.Find("Screens/Message").transform.Find("Error").gameObject.SetActive(true);
-					log("    > Message/Error set to active");		
+					log("        > Message/Error set to active");		
 					
 					GameObject.Find("Screens/Message/Error/Message").GetComponent<TextMeshProUGUI>().text = message;
 										
@@ -250,13 +252,13 @@ public class Main_script : MonoBehaviour
 				{
 					
 					GameObject.Find("Screens/Message").transform.Find("Version").gameObject.SetActive(true);
-					log("    > Message/Version set to active");		
+					log("        > Message/Version set to active");		
 										
 				}
 								
 			}
 					
-		log("\r\n== END message ==\r\n");
+		log("\r\n    == END message ==\r\n");
 		
 	}
 	
@@ -1023,6 +1025,161 @@ public class Main_script : MonoBehaviour
 			token = r["token"];
 			log("    > Token set to : "+token);
 			
+			// 
+			
+			// user id
+			
+			id_user = r["id_user"];
+			log("    > id_user set to : "+id_user);
+			
+			DBReader reader = db.Select("Select * from users WHERE id_user ='" + id_user + "' LIMIT 1");
+			
+			last_update = "0";
+			
+			while (reader != null && reader.Read())
+			{
+
+				last_update = reader.GetStringValue("last_update");
+
+			}
+			
+			log("    > last_update set to : "+last_update);
+			
+			
+			message("loading", "Updating information ...");
+		
+			string json = "{\"request\": \"update\",\"token\": \""+token+"\",\"last_update\": \""+last_update+"\"} ";		
+				
+			StartCoroutine(apicom(json,""));
+			
+		
+		log("\r\n== END login_response ==\r\n");
+					
+	}
+	
+	private void update_response(SimpleJSON.JSONNode r)
+	{
+		
+		
+		log("\r\n    == INIT update_response ==\r\n");
+		
+			int result = 0;
+			
+			var i = 0;
+							
+			if(r["nation_list"] != null){
+				
+					
+					log("        > NATION LIST COUNT: " + r["nation_list"].Count );
+					
+					
+					for(i = 0; i < r["nation_list"].Count; i++){
+						
+						log("        > NATION : " + r["nation_list"][i]["name"] );
+					
+						
+						DBReader reader = db.Select("Select * from users_nations WHERE id_user ='" + id_user + "' AND id_nation ='"+r["nation_list"][i]["id_nation"]+"' LIMIT 1");
+						
+						if (reader != null && reader.Read())
+						{
+
+							// reader.GetStringValue("name")
+
+							result = db.Update("UPDATE users_nations SET last_update='" + r["nation_list"][i]["last_update"] + "', name='" + r["nation_list"][i]["name"] + "'  WHERE id = '" + reader.GetStringValue("id") + "'");
+
+							log("        > UPDATE DB: " + r["nation_list"][i]["name"] + " - Result: " + result );
+					
+						}else{
+							
+							// log("        > INSERT INTO users_nations VALUES ('"+db_lastid("users_nations")+"','"+id_user+"','" + r["nation_list"][i]["id_nation"]  + "','" + r["nation_list"][i]["last_update"]  + "','" + r["nation_list"][i]["name"]  + "')  " );
+					
+							result = db.Insert("INSERT INTO users_nations VALUES ('"+db_lastid("users_nations")+"','"+id_user+"','" + r["nation_list"][i]["id_nation"]  + "','" + r["nation_list"][i]["last_update"]  + "','" + r["nation_list"][i]["name"]  + "') ");
+
+							log("        > INSERT DB: " + r["nation_list"][i]["name"] + " - Result:  " + result );
+							
+							
+						}					
+					
+					}					
+					
+			}else{
+				
+				log("        > NATION NULL ");
+		
+				
+			}
+			
+			if(r["nation_structure"] != null){
+				
+				log("        > NATION STRUCTURE COUNT: " + r["nation_structure"].Count );
+				
+				result = db.Update("UPDATE nations_structure SET status='2' WHERE id_user = '" + id_user + "'");
+
+				log("        > UPDATE DB: status = 2 on all structure - Result: " + result );
+								
+				
+				for(i = 0; i < r["nation_structure"].Count; i++){
+						
+					log("        > NATION STRUCTURE: " + r["nation_structure"][i]["id_menu"] );
+									
+					result = db.Insert("INSERT INTO nations_structure VALUES ('"+db_lastid("nations_structure")+"','"+id_user+"','" + r["nation_structure"][i]["id_nation"]  + "','1','" + r["nation_structure"][i]["name"]  + "','" + r["nation_structure"][i]["type"]  + "','" + r["nation_structure"][i]["type_id"]  + "','" + r["nation_structure"][i]["icon"]  + "','" + r["nation_structure"][i]["order"]  + "') ");
+					
+					log("        > INSERT DB: " + r["nation_structure"][i]["id_menu"] + " - Result:  " + result );
+									
+				
+				}				
+				
+			}else{
+				
+				log("        > NATION STRUCTURE NULL ");
+						
+			}
+			
+			message("error", "Finalizou UPDATE");
+		
+		
+			/*
+		
+			token = r["token"];
+			log("    > Token set to : "+token);
+			
+			// 
+			
+			// user id
+			
+			id_user = r["id_user"];
+			log("    > id_user set to : "+id_user);
+			
+			DBReader reader = db.Select("Select * from users WHERE id_user ='" + id_user + "' LIMIT 1");
+			
+			last_update = "0";
+			
+			while (reader != null && reader.Read())
+			{
+
+				last_update = reader.GetStringValue("last_update");
+
+			}
+			
+			log("    > last_update set to : "+last_update);
+			
+			
+			message("loading", "Updating information ...");
+		
+			string json = "{\"request\": \"update\",\"token\": \""+token+"\",\"last_update\": \""+last_update+"\"} ";		
+				
+			StartCoroutine(apicom(json,""));
+			
+			*/
+			
+			/*
+			
+			
+			
+			
+			*/
+			
+			
 			//// User configuration
 			
 			// user id
@@ -1058,7 +1215,7 @@ public class Main_script : MonoBehaviour
 						
 			*/
 		
-		log("\r\n== END login_response ==\r\n");
+		log("\r\n    == END update_response ==\r\n");
 					
 	}
 	
@@ -1121,6 +1278,7 @@ public class Main_script : MonoBehaviour
 			yield return www.Send();
 			
 			log("    > API request sent.");
+			log("    > JSON:"+json);
 			
 			
 			log("\r\n== END apicom ==\r\n");
@@ -1175,6 +1333,15 @@ public class Main_script : MonoBehaviour
 											
 						
 					}
+					else if (r["error"] == "relogin")
+                    {
+					
+						//// SHOW ERROR MESSAGE SCREEN HERE!
+                		
+						message("error", r["error_message"]);
+											
+						
+					}
 					else
 					{
 						
@@ -1197,6 +1364,12 @@ public class Main_script : MonoBehaviour
 							message("error", "Check your email with the information.");
 													
 						}
+						else if(r["request"] == "update")
+						{
+							
+							update_response(r);
+													
+						}
 						else
 						{
 							
@@ -1209,7 +1382,7 @@ public class Main_script : MonoBehaviour
 												
 					}					
 					
-					log("\r\n== END response ==\r\n");
+					log("\r\n== END apicom response ==\r\n");
 					
 				}
 						
@@ -1696,7 +1869,7 @@ public class Main_script : MonoBehaviour
 
 			DBSchema schema = new DBSchema("users");
 
-			schema.AddField("id", SQLiteDB.DB_DataType.DB_VARCHAR, 9, false, true, true);
+			schema.AddField("id", SQLiteDB.DB_DataType.DB_INT, 0, false, true, true);
 			schema.AddField("id_user", SQLiteDB.DB_DataType.DB_VARCHAR, 25, false, false, false);
 			schema.AddField("last_update", SQLiteDB.DB_DataType.DB_VARCHAR, 25, false, false, false);
 				   
@@ -1708,7 +1881,7 @@ public class Main_script : MonoBehaviour
 
 			schema = new DBSchema("users_nations");
 
-			schema.AddField("id", SQLiteDB.DB_DataType.DB_VARCHAR, 9, false, true, true);
+			schema.AddField("id", SQLiteDB.DB_DataType.DB_INT, 0, false, true, true);
 			schema.AddField("id_user", SQLiteDB.DB_DataType.DB_VARCHAR, 25, false, false, false);
 			schema.AddField("id_nation", SQLiteDB.DB_DataType.DB_VARCHAR, 25, false, false, false);
 			schema.AddField("last_update", SQLiteDB.DB_DataType.DB_VARCHAR, 25, false, false, false);
@@ -1722,12 +1895,13 @@ public class Main_script : MonoBehaviour
 
 			schema = new DBSchema("nations_structure");
 
-			schema.AddField("id", SQLiteDB.DB_DataType.DB_VARCHAR, 9, false, true, true);
+			schema.AddField("id", SQLiteDB.DB_DataType.DB_INT, 0, false, true, true);
 			schema.AddField("id_user", SQLiteDB.DB_DataType.DB_VARCHAR, 25, false, false, false);
 			schema.AddField("id_nation", SQLiteDB.DB_DataType.DB_VARCHAR, 25, false, false, false);
 			schema.AddField("status", SQLiteDB.DB_DataType.DB_VARCHAR, 1, false, false, false);
 			schema.AddField("menu_name", SQLiteDB.DB_DataType.DB_VARCHAR, 100, false, false, false);
 			schema.AddField("menu_type", SQLiteDB.DB_DataType.DB_VARCHAR, 100, false, false, false);
+			schema.AddField("menu_type_id", SQLiteDB.DB_DataType.DB_VARCHAR, 100, false, false, false);
 			schema.AddField("menu_icon", SQLiteDB.DB_DataType.DB_VARCHAR, 100, false, false, false);
 			schema.AddField("menu_order", SQLiteDB.DB_DataType.DB_VARCHAR, 100, false, false, false);
 				   
@@ -1741,6 +1915,25 @@ public class Main_script : MonoBehaviour
 		
 	}
 	
+	public int db_lastid(string name)
+    {
+
+        DBReader reader = db.Select("SELECT * FROM " + name + " ORDER BY id DESC LIMIT 1");
+        
+		if (reader != null && reader.Read())
+        {
+            
+			// log("    ******************** LAST ID :"+reader.GetStringValue("id"));
+			
+			return ( int.Parse( reader.GetStringValue("id") ) + 1 );
+						
+        }else{
+			
+			return 1;
+			
+		}
+
+    }
 	
 	// Saves a txt File
 	// TODO: link to the database
