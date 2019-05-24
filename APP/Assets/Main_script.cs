@@ -16,6 +16,13 @@ using UnityEngine.SceneManagement;
 public class Main_script : MonoBehaviour
 {
 	
+	// app version
+	private string app_version = "1.0";
+	
+	// production enviroment : 1 = true / 0 = false (test enviroment)
+	private int production = 0;
+	
+	
 	// PREFABS
 	
 	public Transform page_image;
@@ -27,8 +34,6 @@ public class Main_script : MonoBehaviour
 	public Transform area_nation;
 	
 	
-	// production enviroment : 1 = true / 0 = false (test enviroment)
-	private int production = 0;
 	
     // Variable that stores the console messages
 	private string console = "Console:\r\n\r\n";
@@ -98,7 +103,9 @@ public class Main_script : MonoBehaviour
 			if(result == true)
 			{
 				
-				log("    > Main DB CREATED at: " + Application.persistentDataPath);		
+				log("    > Main DB CREATED at: " + Application.persistentDataPath);	
+				
+				create_tables();
 				
 			}
 			else
@@ -168,8 +175,8 @@ public class Main_script : MonoBehaviour
 					GameObject.Find("Screens").transform.Find("Create_account").gameObject.SetActive(true);
 					log("    > Create_account set to active");
 					
-					focus("Input_new_name"); // Input_new_name1
-					log("    > Focus set to Input_name");
+					focus("Input_new_citzen_id"); // Input_new_name1
+					log("    > Focus set to Input_new_citzen_id");
 										
 				}
 				else if(screen == "Restore")
@@ -218,6 +225,9 @@ public class Main_script : MonoBehaviour
 				GameObject.Find("Screens/Message").transform.Find("Error").gameObject.SetActive(false);
 				log("    > Message/Error set to inactive");						
 				
+				GameObject.Find("Screens/Message").transform.Find("Version").gameObject.SetActive(false);
+				log("    > Message/Version set to inactive");						
+				
 				if(screen == "loading")
 				{
 					
@@ -234,6 +244,13 @@ public class Main_script : MonoBehaviour
 					log("    > Message/Error set to active");		
 					
 					GameObject.Find("Screens/Message/Error/Message").GetComponent<TextMeshProUGUI>().text = message;
+										
+				}
+				else if(screen == "version")
+				{
+					
+					GameObject.Find("Screens/Message").transform.Find("Version").gameObject.SetActive(true);
+					log("    > Message/Version set to active");		
 										
 				}
 								
@@ -823,6 +840,13 @@ public class Main_script : MonoBehaviour
 			
 	}
 	
+	public void update_app()
+	{
+		
+		Application.OpenURL("http://tse.bitnation.co/");
+				
+	}	
+	
 	// Change the text from the create new user screen
 	public void change_id()
 	{
@@ -998,6 +1022,17 @@ public class Main_script : MonoBehaviour
 		
 			token = r["token"];
 			log("    > Token set to : "+token);
+			
+			//// User configuration
+			
+			// user id
+			
+			// DBReader reader = db.Select("Select * from contacts WHERE atlantis_id ='" + resp["id"] + "'");
+				
+			
+			/*
+			
+			//// Load the main screen
 					
 			lobby("Hide");
 		
@@ -1021,7 +1056,7 @@ public class Main_script : MonoBehaviour
 			
 			loadpage("townhall");
 						
-		
+			*/
 		
 		log("\r\n== END login_response ==\r\n");
 					
@@ -1068,6 +1103,7 @@ public class Main_script : MonoBehaviour
 		WWWForm form = new WWWForm();
 		
         form.AddField("json", json);
+		form.AddField("app_version", app_version);
 		// form.headers ["email"] = "teste";
 		// form.headers ["password"] = "teste";
 		
@@ -1127,6 +1163,15 @@ public class Main_script : MonoBehaviour
 						//// SHOW ERROR MESSAGE SCREEN HERE!
                 		
 						message("error", r["error_message"]);
+											
+						
+					}
+					else if (r["error"] == "version")
+                    {
+					
+						//// SHOW ERROR MESSAGE SCREEN HERE!
+                		
+						message("version", r["error_message"]);
 											
 						
 					}
@@ -1369,7 +1414,8 @@ public class Main_script : MonoBehaviour
 	// ***********************************
 	
 	// This function creates the main pages of the system, like settings, wallets, etc...
-	private void create_pages(){
+	private void create_pages()
+	{
 		
 		log("== INIT create_pages ==\r\n");
 		
@@ -1637,6 +1683,60 @@ public class Main_script : MonoBehaviour
 		
 		
 		log("\r\n== END create_pages ==\r\n");
+		
+		
+	}
+	
+	private void create_tables()
+	{
+		
+		log("\r\n== INIT create_tables ==\r\n");
+		
+			/// TABLE : Users
+
+			DBSchema schema = new DBSchema("users");
+
+			schema.AddField("id", SQLiteDB.DB_DataType.DB_VARCHAR, 9, false, true, true);
+			schema.AddField("id_user", SQLiteDB.DB_DataType.DB_VARCHAR, 25, false, false, false);
+			schema.AddField("last_update", SQLiteDB.DB_DataType.DB_VARCHAR, 25, false, false, false);
+				   
+			bool result = db.CreateTable(schema); // create table
+
+			log("    > Users table created? "+result);
+			
+			/// TABLE : Users_nations
+
+			schema = new DBSchema("users_nations");
+
+			schema.AddField("id", SQLiteDB.DB_DataType.DB_VARCHAR, 9, false, true, true);
+			schema.AddField("id_user", SQLiteDB.DB_DataType.DB_VARCHAR, 25, false, false, false);
+			schema.AddField("id_nation", SQLiteDB.DB_DataType.DB_VARCHAR, 25, false, false, false);
+			schema.AddField("last_update", SQLiteDB.DB_DataType.DB_VARCHAR, 25, false, false, false);
+			schema.AddField("name", SQLiteDB.DB_DataType.DB_VARCHAR, 100, false, false, false);
+				   
+			result = db.CreateTable(schema); // create table
+
+			log("    > Users_nations table created? "+result);
+			
+			/// TABLE : Nations_structure
+
+			schema = new DBSchema("nations_structure");
+
+			schema.AddField("id", SQLiteDB.DB_DataType.DB_VARCHAR, 9, false, true, true);
+			schema.AddField("id_user", SQLiteDB.DB_DataType.DB_VARCHAR, 25, false, false, false);
+			schema.AddField("id_nation", SQLiteDB.DB_DataType.DB_VARCHAR, 25, false, false, false);
+			schema.AddField("status", SQLiteDB.DB_DataType.DB_VARCHAR, 1, false, false, false);
+			schema.AddField("menu_name", SQLiteDB.DB_DataType.DB_VARCHAR, 100, false, false, false);
+			schema.AddField("menu_type", SQLiteDB.DB_DataType.DB_VARCHAR, 100, false, false, false);
+			schema.AddField("menu_icon", SQLiteDB.DB_DataType.DB_VARCHAR, 100, false, false, false);
+			schema.AddField("menu_order", SQLiteDB.DB_DataType.DB_VARCHAR, 100, false, false, false);
+				   
+			result = db.CreateTable(schema); // create table
+
+			log("    > nations_structure table created? "+result);
+			
+
+		log("\r\n== END create_tables ==");
 		
 		
 	}
