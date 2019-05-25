@@ -33,6 +33,9 @@ public class Main_script : MonoBehaviour
 	public Transform page_area;
 	public Transform area_nation;
 	
+	public Transform menu_orange;
+	public Transform menu_white;
+	public Transform nation_banner;
 	
 	
     // Variable that stores the console messages
@@ -80,7 +83,7 @@ public class Main_script : MonoBehaviour
 			console_position = 0;
 			log("    > Console Position set to " + console_position);
 			
-			Application.targetFrameRate = 30;
+			Application.targetFrameRate = 15;
 			log("    > FrameRate set to " + Application.targetFrameRate);
 			
 			QualitySettings.vSyncCount = 0;
@@ -949,7 +952,8 @@ public class Main_script : MonoBehaviour
 		
 	}
 	
-	public void menu_page(string name){
+	public void menu_page(string name)
+	{
 		
 		if(name == "settings")
 		{
@@ -1009,7 +1013,85 @@ public class Main_script : MonoBehaviour
 		
 	}
 	
-	
+	private void load_menu(string nation)
+	{
+		
+		log("\r\n    == INIT load_menu ==\r\n");
+		
+		log("        > Nation received: " + nation );
+				
+		Transform obj;
+		Texture2D texture;
+		DBReader reader;
+		
+		clear("Screens/Main/Sidebar/Sidebar_menu/Menu/Viewport/Content");
+		
+		if(nation == ""){
+			
+			reader = db.Select("Select * from users_nations WHERE id_user ='" + id_user + "' LIMIT 1");
+			
+			if(reader != null && reader.Read()){
+				
+				nation = reader.GetStringValue("id_nation");
+				
+				log("        > NATION SET TO: " + nation );
+									
+			}
+									
+		}	
+
+		reader = db.Select("Select * from users_nations WHERE id_user ='" + id_user + "' AND id_nation = '"+nation+"' LIMIT 1");
+		
+		// Nation banner on the MENU
+		
+		if(reader != null && reader.Read()){
+			
+			obj = Instantiate(nation_banner, new Vector3(0, 0, 0), Quaternion.identity);
+				
+			obj.SetParent(GameObject.Find("Screens/Main/Sidebar/Sidebar_menu/Menu/Viewport/Content").gameObject.transform, false);
+
+			obj.transform.Find("Label").GetComponent<TextMeshProUGUI>().text = reader.GetStringValue("name");
+		
+			log("        > NATION banner Created");
+								
+		}
+				
+		reader = db.Select("Select * from nations_structure WHERE id_user ='" + id_user + "' AND id_nation ='"+nation+"' AND status='1' ORDER BY menu_order ASC");
+				
+		while (reader != null && reader.Read())
+		{
+		
+			log("        > MENU LOADED: " + reader.GetStringValue("menu_name") + " - " + reader.GetStringValue("menu_icon") );
+			
+			if(reader.GetStringValue("menu_type") == "1"){
+				
+				obj = Instantiate(menu_orange, new Vector3(0, 0, 0), Quaternion.identity);
+			
+			}else{
+				
+				obj = Instantiate(menu_white, new Vector3(0, 0, 0), Quaternion.identity);
+							
+			}
+					
+			
+			obj.SetParent(GameObject.Find("Screens/Main/Sidebar/Sidebar_menu/Menu/Viewport/Content").gameObject.transform, false);
+
+			obj.transform.Find("Label").GetComponent<TextMeshProUGUI>().text = reader.GetStringValue("menu_name");
+			
+			texture = Resources.Load<Texture2D>("images/"+reader.GetStringValue("menu_icon")); // +reader.GetStringValue("menu_icon")
+			
+			log("        > TEXTURE: " + texture );
+						
+			obj.transform.Find("Icon").GetComponent<Image>().sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f,0.5f));
+			
+			
+			
+		};
+		
+		log("\r\n    == END update_response ==\r\n");
+					
+	}
+		
 	// ***********************************
 	// 		API Response Functions
 	// ***********************************
@@ -1136,58 +1218,8 @@ public class Main_script : MonoBehaviour
 			}
 			
 			message("error", "Finalizou UPDATE");
-		
-		
-			/*
-		
-			token = r["token"];
-			log("    > Token set to : "+token);
-			
-			// 
-			
-			// user id
-			
-			id_user = r["id_user"];
-			log("    > id_user set to : "+id_user);
-			
-			DBReader reader = db.Select("Select * from users WHERE id_user ='" + id_user + "' LIMIT 1");
-			
-			last_update = "0";
-			
-			while (reader != null && reader.Read())
-			{
-
-				last_update = reader.GetStringValue("last_update");
-
-			}
-			
-			log("    > last_update set to : "+last_update);
 			
 			
-			message("loading", "Updating information ...");
-		
-			string json = "{\"request\": \"update\",\"token\": \""+token+"\",\"last_update\": \""+last_update+"\"} ";		
-				
-			StartCoroutine(apicom(json,""));
-			
-			*/
-			
-			/*
-			
-			
-			
-			
-			*/
-			
-			
-			//// User configuration
-			
-			// user id
-			
-			// DBReader reader = db.Select("Select * from contacts WHERE atlantis_id ='" + resp["id"] + "'");
-				
-			
-			/*
 			
 			//// Load the main screen
 					
@@ -1212,8 +1244,11 @@ public class Main_script : MonoBehaviour
 			tab("Tab1");
 			
 			loadpage("townhall");
+			
+									
+			load_menu("");
 						
-			*/
+			
 		
 		log("\r\n    == END update_response ==\r\n");
 					
@@ -1544,7 +1579,6 @@ public class Main_script : MonoBehaviour
 		}		
 		
 	}
-
 	
 	// Get the text from a text area
 	private string get_text(string target)
@@ -1580,6 +1614,62 @@ public class Main_script : MonoBehaviour
 		
 		
 		
+	}
+		
+	public int db_lastid(string name)
+    {
+
+        DBReader reader = db.Select("SELECT * FROM " + name + " ORDER BY id DESC LIMIT 1");
+        
+		if (reader != null && reader.Read())
+        {
+            
+			// log("    ******************** LAST ID :"+reader.GetStringValue("id"));
+			
+			return ( int.Parse( reader.GetStringValue("id") ) + 1 );
+						
+        }else{
+			
+			return 1;
+			
+		}
+
+    }
+	
+	// Saves a txt File
+	// TODO: link to the database
+	private void savefile(string name, string text)
+	{
+		
+		System.IO.File.WriteAllText( Application.persistentDataPath + "/"+name+".txt", text);
+		
+	}
+	
+	// Load txt file
+	private string loadfile(string name)
+	{
+		
+		string response = "";
+		
+		try
+        {
+			
+            StreamReader r = File.OpenText(  Application.persistentDataPath + "/"+name+".txt" ); 
+			response = r.ReadToEnd(); 
+			r.Close(); 
+			
+        }
+        catch (Exception e)
+        {
+            
+			log("\r\n**********\r\n Warning : File not found. ("+name+")\r\n**********\r\n");
+
+			response = null;
+			
+        }
+		
+		return response;
+	   
 	}
 	
 	// ***********************************
@@ -1914,62 +2004,5 @@ public class Main_script : MonoBehaviour
 		
 		
 	}
-	
-	public int db_lastid(string name)
-    {
 
-        DBReader reader = db.Select("SELECT * FROM " + name + " ORDER BY id DESC LIMIT 1");
-        
-		if (reader != null && reader.Read())
-        {
-            
-			// log("    ******************** LAST ID :"+reader.GetStringValue("id"));
-			
-			return ( int.Parse( reader.GetStringValue("id") ) + 1 );
-						
-        }else{
-			
-			return 1;
-			
-		}
-
-    }
-	
-	// Saves a txt File
-	// TODO: link to the database
-	private void savefile(string name, string text)
-	{
-		
-		System.IO.File.WriteAllText( Application.persistentDataPath + "/"+name+".txt", text);
-		
-	}
-	
-	// Load txt file
-	private string loadfile(string name)
-	{
-		
-		string response = "";
-		
-		try
-        {
-			
-            StreamReader r = File.OpenText(  Application.persistentDataPath + "/"+name+".txt" ); 
-			response = r.ReadToEnd(); 
-			r.Close(); 
-			
-        }
-        catch (Exception e)
-        {
-            
-			log("\r\n**********\r\n Warning : File not found. ("+name+")\r\n**********\r\n");
-
-			response = null;
-			
-        }
-		
-		return response;
-	   
-	}
-	
-	
 }
