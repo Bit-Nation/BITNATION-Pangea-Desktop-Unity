@@ -656,12 +656,12 @@ public class Main_script : MonoBehaviour
 		
 		// log("\r\n== Page spot 1: "+GameObject.Find("page_spot1").gameObject+" ==\r\n");
 		
-		
+		page_loader("hide");
 
 		log("\r\n== END loadpage ==\r\n");
 				
 	}
-	
+
 	// Function invoked at the start of every frame
 	void Update()
     {
@@ -1042,6 +1042,8 @@ public class Main_script : MonoBehaviour
 
 		reader = db.Select("Select * from users_nations WHERE id_user ='" + id_user + "' AND id_nation = '"+nation+"' LIMIT 1");
 		
+		
+		
 		// Nation banner on the MENU
 		
 		if(reader != null && reader.Read()){
@@ -1054,6 +1056,10 @@ public class Main_script : MonoBehaviour
 		
 			log("        > NATION banner Created");
 								
+		}else{
+			
+			log("        > *************** NATION not found with id : "+nation);
+					
 		}
 				
 		reader = db.Select("Select * from nations_structure WHERE id_user ='" + id_user + "' AND id_nation ='"+nation+"' AND status='1' ORDER BY menu_order ASC");
@@ -1066,11 +1072,65 @@ public class Main_script : MonoBehaviour
 			if(reader.GetStringValue("menu_type") == "1"){
 				
 				obj = Instantiate(menu_orange, new Vector3(0, 0, 0), Quaternion.identity);
+				
+				string menu_type_id = reader.GetStringValue("menu_type_id");
+				string nation_id = reader.GetStringValue("id_nation");
+				
+				obj.transform.GetComponent<Button>().onClick.AddListener( 
+				
+					delegate{ 
+					
+								request_main(nation_id,menu_type_id); 
+								log("        > Clicked on menu type id: " + menu_type_id );
+								
+							}
+							
+				);
 			
-			}else{
+			}else if(reader.GetStringValue("menu_type") == "2")
+			{
+		
+				obj = Instantiate(menu_white, new Vector3(0, 0, 0), Quaternion.identity);
+				
+				string menu_type_id = reader.GetStringValue("menu_type_id");
+				string menu_type = reader.GetStringValue("menu_type");
+				
+				obj.transform.GetComponent<Button>().onClick.AddListener( 
+				
+					delegate{ 
+					
+								request_page(menu_type,menu_type_id); 
+								log("        > Clicked on menu type id: " + menu_type_id );
+								
+							}
+							
+				);
+			
+			}
+			else if(reader.GetStringValue("menu_type") == "3")
+			{
 				
 				obj = Instantiate(menu_white, new Vector3(0, 0, 0), Quaternion.identity);
+				
+				string menu_type_id = reader.GetStringValue("menu_type_id");
+				string menu_type = reader.GetStringValue("menu_type");
+				
+				obj.transform.GetComponent<Button>().onClick.AddListener( 
+				
+					delegate{ 
+					
+								request_chat(menu_type_id); 
+								log("        > Clicked on chat id: " + menu_type_id );
+								
+							}
 							
+				);
+							
+			}
+			else{
+				
+				obj = Instantiate(menu_white, new Vector3(0, 0, 0), Quaternion.identity);
+								
 			}
 					
 			
@@ -1086,11 +1146,104 @@ public class Main_script : MonoBehaviour
 			
 			
 			
+			
+		};
+		
+		log("\r\n    == END load_menu ==\r\n");
+					
+	}
+		
+	private void load_nations()
+	{
+		
+		log("\r\n    == INIT load_nations ==\r\n");
+				
+		Transform obj;
+		Texture2D texture;
+		DBReader reader;
+		
+		
+		clear("Screens/Main/Sidebar/Sidebar_nations/Scroll View/Viewport/Content");
+		
+		reader = db.Select("Select * from users_nations WHERE id_user ='" + id_user + "' ");
+		
+		while (reader != null && reader.Read())
+		{
+		
+			log("        > Nation loaded: " + reader.GetStringValue("name")+" - ID: "+reader.GetStringValue("id") );
+			
+			string id_nation = "";
+					
+			obj = Instantiate(nation_banner, new Vector3(0, 0, 0), Quaternion.identity);
+			
+			obj.name = reader.GetStringValue("id");
+			
+			id_nation = reader.GetStringValue("id_nation");
+			
+			obj.SetParent(GameObject.Find("Screens/Main/Sidebar/Sidebar_nations/Scroll View/Viewport/Content").gameObject.transform, false);
+
+			obj.transform.Find("Label").GetComponent<TextMeshProUGUI>().text = reader.GetStringValue("name");
+			
+			obj.transform.GetComponent<Button>().onClick.AddListener( 
+			
+				delegate{ 
+				
+							load_menu(id_nation); 
+							tab("Tab1");
+							log("        > Nation changed to id: " + id_nation );
+							
+						}
+						
+			);
+			
+						
 		};
 		
 		log("\r\n    == END update_response ==\r\n");
 					
 	}
+	
+	public void request_page(string type,string page_id)
+	{
+		
+		// message("loading", "Requesting page ...");
+		
+		page_loader("");
+
+		string json = "{\"request\": \"page\",\"token\": \""+token+"\",\"page\": \""+page_id+"\"} ";		
+			
+		StartCoroutine(apicom(json,""));
+		
+		
+			
+	}
+	
+	public void request_main(string nation_id, string menu_type_id)
+	{
+		
+		// message("loading", "Requesting page ...");
+		
+		page_loader("");
+
+		string json = "{\"request\": \"main\",\"token\": \""+token+"\",\"nation_id\": \""+nation_id+"\",\"type_id\": \""+menu_type_id+"\"} ";		
+			
+		StartCoroutine(apicom(json,""));
+		
+		
+			
+	}
+	
+
+	
+	public void request_chat(string chat_id)
+	{
+		
+		message("error", "Chat requested: "+chat_id);
+		
+			
+	}
+	
+
 		
 	// ***********************************
 	// 		API Response Functions
@@ -1247,12 +1400,48 @@ public class Main_script : MonoBehaviour
 			
 									
 			load_menu("");
-						
+			
+			load_nations();						
 			
 		
 		log("\r\n    == END update_response ==\r\n");
 					
 	}
+
+	private void request_page_response(SimpleJSON.JSONNode r)
+	{
+		
+		
+		log("\r\n    == INIT request_page_response ==\r\n");
+		
+			savefile("temp", r["content"]);
+
+			loadpage("temp");
+			
+			message("hide", "");
+			
+		
+		log("\r\n    == END request_page_response ==\r\n");
+					
+	}
+	
+	private void request_main_response(SimpleJSON.JSONNode r)
+	{
+		
+		
+		log("\r\n    == INIT request_page_response ==\r\n");
+		
+			savefile("temp", r["content"]);
+
+			loadpage("temp");
+			
+			message("hide", "");
+			
+		
+		log("\r\n    == END request_page_response ==\r\n");
+					
+	}
+	
 	
 	// ***********************************
 	// 		Comunication Functions
@@ -1403,6 +1592,18 @@ public class Main_script : MonoBehaviour
 						{
 							
 							update_response(r);
+													
+						}
+						else if(r["request"] == "page")
+						{
+							
+							request_page_response(r);
+													
+						}
+						else if(r["request"] == "main")
+						{
+							
+							request_main_response(r);
 													
 						}
 						else
@@ -1671,6 +1872,27 @@ public class Main_script : MonoBehaviour
 		return response;
 	   
 	}
+	
+	// removes all child objects
+	private void page_loader(string type)
+	{
+			
+		if(type == "hide"){
+			
+			GameObject.Find("Screens/Main/Main_content_page").transform.Find("Loader").gameObject.SetActive(false);
+			log("        > Screens/Main/Main_content_page/Loader to inactive");
+					
+		}
+		else
+		{
+			
+			GameObject.Find("Screens/Main/Main_content_page").transform.Find("Loader").gameObject.SetActive(true);
+			log("        > Screens/Main/Main_content_page/Loader to inactive");
+								
+		}		
+				
+	}
+	
 	
 	// ***********************************
 	// 		Configuration Functions
